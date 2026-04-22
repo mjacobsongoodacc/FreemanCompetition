@@ -14,6 +14,7 @@ import {
   landfallCountdownInitialSeconds,
   exposure,
 } from "@/lib/mock-data";
+import { supabase, DEMO_SESSION_ID } from "@/lib/supabase";
 
 const STORAGE_KEY = "shepherd_storm";
 
@@ -115,15 +116,31 @@ export function StormProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const resetDemo = useCallback(() => {
-    setStormActiveState(false);
-    setLandfallSeconds(landfallCountdownInitialSeconds);
-    setPrepSeconds(exposure.prepTimeSeconds);
-    try {
-      window.localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      /* ignore */
-    }
-    window.location.href = "/app";
+    void (async () => {
+      const { error } = await supabase
+        .from("turns")
+        .delete()
+        .eq("session_id", DEMO_SESSION_ID);
+      if (error) {
+        console.error("Failed to clear demo turns:", error);
+        notifications.show({
+          color: "red",
+          title: "Could not reset chat",
+          message:
+            "Demo messages could not be cleared. Check your connection and try again.",
+        });
+        return;
+      }
+      setStormActiveState(false);
+      setLandfallSeconds(landfallCountdownInitialSeconds);
+      setPrepSeconds(exposure.prepTimeSeconds);
+      try {
+        window.localStorage.removeItem(STORAGE_KEY);
+      } catch {
+        /* ignore */
+      }
+      window.location.href = "/app";
+    })();
   }, []);
 
   const value = useMemo<StormContextValue>(

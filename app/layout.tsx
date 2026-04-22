@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Figtree, JetBrains_Mono } from "next/font/google";
+import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
@@ -10,10 +10,10 @@ import { shepherdTheme } from "@/lib/mantine-theme";
 // import localFont from 'next/font/local';
 // const display = localFont({ src: '../public/fonts/chalet/Chalet.woff2',
 //   variable: '--font-display' });
-const figtree = Figtree({
+const display = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-display",
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -40,7 +40,7 @@ export default function RootLayout({
         <ColorSchemeScript defaultColorScheme="dark" forceColorScheme="dark" />
       </head>
       <body
-        className={`${figtree.variable} ${jetbrainsMono.variable} bg-bg text-text-1`}
+        className={`${display.variable} ${jetbrainsMono.variable} bg-bg text-text-1`}
       >
         <MantineProvider theme={shepherdTheme} defaultColorScheme="dark">
           <Notifications position="top-center" zIndex={10000} />
