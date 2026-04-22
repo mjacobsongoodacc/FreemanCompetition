@@ -1,41 +1,28 @@
 # Shepherd
 
-Next.js 14 monorepo containing a marketing site, a dashboard app surface, and **Wayfind**, a single-file dark-mode map + AI chat prototype.
+Next.js 14 app: marketing site, **Shepherd** dashboard, and **Wayfind** (dark map + AI chat prototype).
 
 ## Routes
 
 | Path | What it is |
 | --- | --- |
-| `/` | Shepherd marketing site (hero, streams, dossier, final CTA) |
-| `/app` | Shepherd dashboard shell (monitor panel, feed, chat) |
-| `/wayfind` | Standalone map navigation + floating AI chat prototype |
+| `/` | Marketing homepage — **Variant C (Signal)**: dark ops console layout, live storm-path canvas over `public/images/gulf-satellite.png` with Ida track and animated hurricane icon (`components/designs/variant-signal.tsx`) |
+| `/app` | Dashboard shell (monitor, feed, chat) |
+| `/wayfind` | Map + directions + floating chat (`components/wayfind-app.tsx`) |
 | `/sign-in`, `/sign-up` | Auth entry routes |
 
-## Wayfind prototype
+## Design exports
 
-Full-screen dark Mapbox map with a persistent left-side directions panel and a macOS-Claude-style floating chat bar at bottom-center.
+The `design-exports/` folder holds extra Claude design-canvas files for reference (not bundled). The live site uses the satellite at `public/images/gulf-satellite.png` for the storm-path card.
 
-- **Liquid glass** — reserved for the top nav, primary CTAs, and the chat frame (`#0A0A0C` fill, gradient border, `backdrop-blur-md` + `backdrop-saturate-150`, inset highlight, outer shadow).
-- **Stitch pattern** — barely-visible 48×48 SVG diamond, layered on the page and non-map UI containers only.
-- **Directions panel** — 360px floating column, `From` / `To` inputs, 11-step turn-by-turn for a Mission → Ferry Building route, totals, and a `Start` CTA.
-- **Chat panel** — 560px wide, 56px collapsed / 480px expanded (280ms ease-out), outside-click and `Escape` collapse, seeded with realistic route context.
+## Wayfind
 
-Single file: [`components/wayfind-app.tsx`](components/wayfind-app.tsx). Drop-in compatible with any Next.js app that has `framer-motion`, `mapbox-gl`, `lucide-react`, and Tailwind.
-
-### Mapbox token
-
-Wayfind uses a placeholder `YOUR_MAPBOX_TOKEN` — replace it in `components/wayfind-app.tsx` (or wire it to an env var) before the map will load.
+- **Mapbox:** set `NEXT_PUBLIC_MAPBOX_TOKEN` (or replace `YOUR_MAPBOX_TOKEN` in `components/wayfind-app.tsx`).
+- **Build:** `transpilePackages: ["mapbox-gl"]` in `next.config.mjs`.
 
 ## Stack
 
-- Next.js 14 (App Router)
-- React 18, TypeScript
-- Tailwind CSS
-- Framer Motion
-- Mapbox GL JS (Wayfind)
-- Google Maps JS (Shepherd monitor)
-- lucide-react icons
-- Mantine + Radix UI primitives (Shepherd)
+Next.js 14, React 18, TypeScript, Tailwind, Framer Motion, Mapbox GL, Google Maps (dashboard), Mantine, Radix, lucide-react.
 
 ## Local development
 
@@ -44,39 +31,32 @@ npm install
 npm run dev
 ```
 
-Then open:
-- <http://localhost:3000> — marketing
-- <http://localhost:3000/app> — dashboard
-- <http://localhost:3000/wayfind> — Wayfind prototype
+Open [http://localhost:3000](http://localhost:3000) (or the port Next prints if 3000 is busy).
+
+## Environment
+
+Create `.env.local` as needed, e.g. `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=…` for the dashboard map.
 
 ## Scripts
 
 | Command | Purpose |
 | --- | --- |
-| `npm run dev` | Start the dev server |
+| `npm run dev` | Dev server |
 | `npm run build` | Production build |
-| `npm run start` | Serve the production build |
+| `npm run start` | Run production build |
 | `npm run lint` | ESLint |
 
-## Environment
-
-Create `.env.local`:
+## Layout
 
 ```
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_key
-```
-
-Mapbox token is currently inline; move to `NEXT_PUBLIC_MAPBOX_TOKEN` before deploying publicly.
-
-## Project layout
-
-```
-app/              App Router routes (marketing, /app, /wayfind, auth)
+app/                 App Router
 components/
-  app/            Shepherd dashboard surfaces
-  marketing/      Marketing sections
-  ui/             Radix-based primitives
-  wayfind-app.tsx Wayfind single-file prototype
-lib/              Shared context, theme, mock data
-tailwind.config.ts
+  app/               Dashboard
+  designs/
+    variant-signal.tsx  Homepage (Signal)
+    shepherd-data.ts    Shared copy + mock data for Signal
+  wayfind-app.tsx    Map prototype
+design-exports/      Design-canvas references (not bundled)
+lib/                 Context, theme, mock data
+public/images/       gulf-satellite.png (Gulf basemap for storm path)
 ```
