@@ -1,6 +1,7 @@
 export const user = {
   name: "Sarah Boudreaux",
   age: 34,
+  demoEmail: "sarah.boudreaux@demo.shepherd",
   address: "4612 St. Anthony Ave, Gentilly 70122",
   vehicle: "2014 Honda Civic",
   fuelPercent: 37,
@@ -15,26 +16,43 @@ export const storm = {
   name: "Ida",
   category: 4,
   position: { lat: 27.8, lng: -88.2 },
+  homePosition: { lat: 30.0, lng: -90.05 },
+  mapCenter: { lat: 29.98, lng: -90.04 },
   maxWinds: 125,
   gusts: 155,
   pressure: 949,
-  movement: "NNW 12 mph",
-  landfallETA: "Sunday 08:00 CDT",
+  movement: "NNW 12 MPH",
+  landfallETA: "SUN 08:00 CDT",
   advisoryNumber: 28,
   advisoryTime: "23:00 CDT",
 } as const;
+
+export type MapLatLng = { lat: number; lng: number };
+
+export const mapConePath: MapLatLng[] = [
+  { lat: 27.8, lng: -88.2 },
+  { lat: 28.6, lng: -89.4 },
+  { lat: 29.4, lng: -90.2 },
+  { lat: 28.2, lng: -90.8 },
+];
+
+export const evacRoutePath: MapLatLng[] = [
+  { lat: 30.0, lng: -90.05 },
+  { lat: 29.95, lng: -90.25 },
+  { lat: 30.15, lng: -90.55 },
+  { lat: 30.45, lng: -91.15 },
+  { lat: 30.95, lng: -90.75 },
+  { lat: 32.3, lng: -90.18 },
+];
 
 export const exposure = {
   surge: "9–13 FT",
   wind: "120 MPH",
   evacZone: "A",
-  /** Seconds until mandatory evac cutoff — frozen scenario: 22h 14m */
   prepTimeSeconds: 80040,
 } as const;
 
-/** Initial landfall countdown — 36:24:12 */
-export const landfallCountdownInitialSeconds =
-  36 * 3600 + 24 * 60 + 12;
+export const landfallCountdownInitialSeconds = 36 * 3600 + 24 * 60 + 12;
 
 export type IndicatorState = "ok" | "warn" | "alert" | "off";
 
@@ -110,6 +128,14 @@ export const chatHistory = [
     time: "23:18",
     body: "If I-10 bottlenecks past LaPlace, get off at Williams Boulevard and take Airline Highway north to US-61. Adds 35 minutes but keeps you moving. Top off at the Shell at Williams and Airline before you get on — the next reliable cluster is 40 miles up and stations past Hammond went dry this morning.",
   },
+] as const;
+
+export const scriptedReplies = [
+  "I'm here. One thing at a time — tell me what you're seeing outside and how full the tank reads.",
+  "If contraflow shifts, stay on the phone with me; I'll reroute you before you burn time in a parking lot that calls itself a highway.",
+  "Pack the grey folder first. Photos and meds next. Clothes last — we can replace shirts; we can't replace documents or insulin.",
+  "When you pick up your mom, confirm her meds are in the original bottles. Pharmacies get picky across state lines during activations.",
+  "If you need a pause, take ten breaths with me. The plan doesn't disappear because your heart is loud right now.",
 ] as const;
 
 export const companionPreview =

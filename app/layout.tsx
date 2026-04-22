@@ -1,18 +1,26 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Figtree, JetBrains_Mono } from "next/font/google";
+import { ColorSchemeScript, MantineProvider } from "@mantine/core";
+import { Notifications } from "@mantine/notifications";
+import "@mantine/notifications/styles.css";
 import "./globals.css";
+import { shepherdTheme } from "@/lib/mantine-theme";
 
-const inter = Inter({
+// To swap Chalet back in:
+// import localFont from 'next/font/local';
+// const display = localFont({ src: '../public/fonts/chalet/Chalet.woff2',
+//   variable: '--font-display' });
+const figtree = Figtree({
   subsets: ["latin"],
-  variable: "--font-inter",
-  weight: ["400", "500", "600"],
+  variable: "--font-display",
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
-  weight: ["500"],
+  weight: ["400", "500", "600"],
   display: "swap",
 });
 
@@ -27,11 +35,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <head>
+        <ColorSchemeScript defaultColorScheme="dark" forceColorScheme="dark" />
+      </head>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} min-h-screen bg-bg font-sans`}
+        className={`${figtree.variable} ${jetbrainsMono.variable} bg-bg text-text-1`}
       >
-        {children}
+        <MantineProvider theme={shepherdTheme} defaultColorScheme="dark">
+          <Notifications position="top-center" zIndex={10000} />
+          {children}
+        </MantineProvider>
       </body>
     </html>
   );

@@ -1,5 +1,23 @@
 import type { Config } from "tailwindcss";
 
+const safeAreaPlugin = ({
+  addUtilities,
+}: {
+  addUtilities: (u: Record<string, Record<string, string>>) => void;
+}) => {
+  addUtilities({
+    ".pb-safe": {
+      paddingBottom: "env(safe-area-inset-bottom, 0px)",
+    },
+    ".pt-safe": {
+      paddingTop: "env(safe-area-inset-top, 0px)",
+    },
+    ".mb-safe": {
+      marginBottom: "env(safe-area-inset-bottom, 0px)",
+    },
+  });
+};
+
 const config: Config = {
   darkMode: ["class"],
   content: [
@@ -21,6 +39,8 @@ const config: Config = {
           DEFAULT: "var(--surface)",
           "2": "var(--surface-2)",
         },
+        "sidebar-bg": "var(--sidebar-bg)",
+        "sidebar-surface": "var(--sidebar-surface)",
         border: {
           DEFAULT: "var(--border)",
           strong: "var(--border-strong)",
@@ -30,15 +50,39 @@ const config: Config = {
           "2": "var(--text-2)",
           "3": "var(--text-3)",
         },
-        green: "var(--green)",
-        amber: "var(--amber)",
-        red: "var(--red)",
-        blue: "var(--blue)",
-        accent: "var(--accent)",
+        amber: {
+          DEFAULT: "var(--amber)",
+          deep: "var(--amber-deep)",
+        },
+        calm: {
+          DEFAULT: "var(--calm)",
+          dim: "var(--calm-dim)",
+        },
+        alert: "var(--alert)",
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        display: [
+          "var(--font-display)",
+          "system-ui",
+          "sans-serif",
+        ],
+        body: [
+          "var(--font-display)",
+          "system-ui",
+          "sans-serif",
+        ],
+        sans: [
+          "var(--font-display)",
+          "system-ui",
+          "sans-serif",
+        ],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
+      },
+      minHeight: {
+        touch: "var(--touch-min)",
+      },
+      minWidth: {
+        touch: "var(--touch-min)",
       },
       keyframes: {
         "accordion-down": {
@@ -56,6 +100,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), safeAreaPlugin],
 };
 export default config;

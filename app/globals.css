@@ -1,117 +1,96 @@
+@import "@mantine/core/styles.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --bg: #0a0e14;
-  --surface: #121821;
-  --surface-2: #1a2230;
+  --bg: #0e1821;
+  --surface: #162231;
+  --surface-2: #1c2a3b;
+  --sidebar-bg: #1a1410;
+  --sidebar-surface: #241c15;
   --border: #1f2937;
   --border-strong: #334155;
-  --text-1: #f1f5f9;
-  --text-2: #94a3b8;
-  --text-3: #64748b;
-  --green: #10b981;
-  --amber: #f59e0b;
-  --red: #ef4444;
-  --blue: #3b82f6;
-  --accent: #f97316;
+  --text-1: #f1ede3;
+  --text-2: #a8b5c2;
+  --text-3: #64758a;
+  --amber: #e8a76f;
+  --amber-deep: #c78251;
+  --calm: #6fb59a;
+  --calm-dim: #4e8a76;
+  --alert: #d05a3d;
+  --touch-min: 44px;
+  --green: var(--calm);
+  --red: var(--alert);
+  --accent: var(--amber);
 }
 
 @layer base {
   * {
     @apply border-border;
   }
+
   body {
-    @apply bg-bg text-text-1 font-sans antialiased;
+    @apply min-h-[100dvh] bg-bg font-sans text-base text-text-1 antialiased;
+    font-size: 16px;
+  }
+
+  @media (hover: hover) {
+    .shepherd-ghost-hover:hover {
+      background-color: color-mix(in oklab, var(--amber) 8%, transparent);
+    }
+
+    .shepherd-filled-hover:hover {
+      filter: brightness(1.02);
+    }
+
+    .shepherd-card-hover:hover {
+      transform: translateY(-1px);
+    }
+
+    .shepherd-link:hover {
+      text-decoration-line: underline;
+    }
+  }
+
+  .shepherd-active:active {
+    transform: translateY(1px);
+    filter: brightness(0.95);
+  }
+
+  .shepherd-focus:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--amber) 40%, transparent),
+      0 0 0 4px var(--bg);
+  }
+
+  .shepherd-disabled:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
   }
 }
 
-/* Status dot — signature element */
-.status-dot {
-  --state-color: var(--text-3);
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  background: var(--state-color);
-  box-shadow:
-    0 0 0 2px color-mix(in oklab, var(--state-color) 25%, transparent),
-    0 0 8px 1px color-mix(in oklab, var(--state-color) 50%, transparent);
-}
-
-.status-dot[data-state="ok"] {
-  --state-color: var(--green);
-}
-.status-dot[data-state="warn"] {
-  --state-color: var(--amber);
-}
-.status-dot[data-state="alert"] {
-  --state-color: var(--red);
-}
-.status-dot[data-state="off"] {
-  --state-color: var(--text-3);
-}
-
-.status-dot[data-live="true"] {
-  animation: pulse-live 2s ease-in-out infinite;
-}
-
-@keyframes pulse-live {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
+@media (prefers-reduced-motion: reduce) {
+  .shepherd-reduce-pulse,
+  .shepherd-reduce-motion {
+    animation: none !important;
   }
-  50% {
-    opacity: 0.55;
-    transform: scale(0.92);
+
+  .shepherd-reduce-translate:active {
+    transform: none;
+  }
+
+  .shepherd-reduce-card-hover:hover {
+    transform: none;
   }
 }
 
-@keyframes orb-pulse {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-    box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 40%, transparent),
-      0 0 12px color-mix(in oklab, #f4bb85 35%, transparent);
-  }
-  50% {
-    opacity: 0.92;
-    transform: scale(1.04);
-    box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 35%, transparent),
-      0 0 18px color-mix(in oklab, #f4bb85 45%, transparent);
-  }
+.chips-scroll {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
 
-.companion-orb {
-  animation: orb-pulse 3s ease-in-out infinite;
-}
-
-@keyframes threat-dot-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.45;
-  }
-}
-
-.threat-pulse-dot {
-  animation: threat-dot-pulse 2s ease-in-out infinite;
-}
-
-.value-flash {
-  animation: value-flash-amber 150ms ease-out;
-}
-
-@keyframes value-flash-amber {
-  0% {
-    color: var(--amber);
-  }
-  100% {
-    color: var(--text-1);
-  }
+.chips-scroll::-webkit-scrollbar {
+  display: none;
 }
