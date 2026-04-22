@@ -19,8 +19,10 @@ export function CalmOrb({
       style={{
         width: size,
         height: size,
-        background: "radial-gradient(circle at 40% 35%, #8fcfb3, #4e8a76)",
-        boxShadow: "0 0 80px rgba(111, 181, 154, 0.25)",
+        background:
+          "radial-gradient(circle at 40% 35%, color-mix(in oklab, var(--calm) 85%, white), var(--calm-dim))",
+        boxShadow:
+          "0 0 80px color-mix(in oklab, var(--calm) 35%, transparent)",
       }}
       animate={
         reduce

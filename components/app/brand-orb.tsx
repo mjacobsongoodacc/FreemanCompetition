@@ -20,7 +20,7 @@ export function BrandOrb({ size = 12, className, pulse = true }: BrandOrbProps) 
         borderRadius: 9999,
         display: "block",
         background:
-          "radial-gradient(circle at 35% 30%, #f4e0c8, var(--amber-deep))",
+          "radial-gradient(circle at 35% 30%, color-mix(in oklab, var(--calm) 88%, white), var(--amber-deep))",
         boxShadow:
           "0 0 0 1px color-mix(in oklab, var(--amber) 35%, transparent), 0 0 8px 2px color-mix(in oklab, var(--amber) 40%, transparent)",
       }}

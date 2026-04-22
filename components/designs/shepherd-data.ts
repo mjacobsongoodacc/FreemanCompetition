@@ -1,6 +1,19 @@
 // Shared mock data for Shepherd homepage explorations.
 // Mirrors the design-canvas export at design-exports/data.jsx.
 
+export type ShepherdChatMessage = {
+  role: "user" | "bot";
+  time: string;
+  body: string;
+};
+
+export type ShepherdAlert = {
+  t: string;
+  agency: string;
+  sev: "red" | "amber" | "blue";
+  body: string;
+};
+
 export const SHEPHERD = {
   storm: {
     name: "IDA",

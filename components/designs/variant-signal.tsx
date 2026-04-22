@@ -10,14 +10,6 @@ import { SHEPHERD } from "./shepherd-data";
 // Direction C — "Signal"
 // Dark ops console, now with centered typographic hero and tweakable fonts/accents.
 
-const cBg    = "#0a0d10";
-const cBg2   = "#10151b";
-const cInk   = "#e8ecef";
-const cInk2  = "#a6b0ba";
-const cInk3  = "#5a6570";
-const cRule  = "#1e262f";
-const cAlert = "#d05a3d";
-
 // ── Tweakable defaults (font + accent presets) ─────────────────────────────
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "fontPreset": "grotesk",
@@ -42,11 +34,11 @@ const SUBHEAD_COLORS = {
   accent:  { label: "Accent (primary)",  get: (a) => a.primary },
   voice:   { label: "Voice (secondary)", get: (a) => a.voice },
   bone:    { label: "Bone / off-white",  get: ()  => "#e6d7b8" },
-  ink:     { label: "Ink (text-1)",      get: ()  => cInk },
-  muted:   { label: "Muted steel",       get: ()  => cInk2 },
-  dim:     { label: "Dim graphite",      get: ()  => cInk3 },
-  alert:   { label: "Alert red",         get: ()  => cAlert },
-  amber:   { label: "Amber",              get: ()  => "#e8a76f" },
+  ink:     { label: "Ink (text-1)",      get: ()  => "var(--text-1)" },
+  muted:   { label: "Muted steel",       get: ()  => "var(--text-2)" },
+  dim:     { label: "Dim graphite",      get: ()  => "var(--text-3)" },
+  alert:   { label: "Alert red",         get: ()  => "var(--alert)" },
+  amber:   { label: "Amber",              get: ()  => "var(--amber)" },
 };
 
 const FONT_PRESETS = {
@@ -404,20 +396,20 @@ function ChannelTape({ font, accent }) {
   const [rows, setRows] = React.useState(() => SHEPHERD.streams.map(() => Array.from({length:80}).map(()=>Math.random())));
   React.useEffect(() => { const id = setInterval(() => setRows(rs => rs.map(r => [...r.slice(1), Math.random()])), 260); return () => clearInterval(id); }, []);
   return (
-    <div style={{ border: "1px solid "+cRule, background: cBg2 }}>
+    <div style={{ border: "1px solid var(--border)", background: "var(--surface)" }}>
       {SHEPHERD.streams.map((s, i) => (
-        <div key={s.key} style={{ display:"grid", gridTemplateColumns:"52px 110px 1fr 140px", alignItems:"center", padding:"16px 18px", borderBottom: i<4?"1px solid "+cRule:"none", gap: 16 }}>
+        <div key={s.key} style={{ display:"grid", gridTemplateColumns:"52px 110px 1fr 140px", alignItems:"center", padding:"16px 18px", borderBottom: i<4?"1px solid var(--border)":"none", gap: 16 }}>
           <span style={{ fontFamily: font.mono, fontSize: 11, color: accent.primary, letterSpacing:"0.14em", fontWeight: 600 }}>CH{s.n}</span>
           <div>
-            <div style={{ fontFamily: font.display, fontSize: 22, color: cInk, letterSpacing:"-0.01em", fontWeight: font.heroWeight }}>{s.label}</div>
-            <div style={{ fontFamily: font.mono, fontSize: 9, color: cInk3, letterSpacing:"0.18em", marginTop: 2, fontWeight: 500 }}>{s.key}</div>
+            <div style={{ fontFamily: font.display, fontSize: 22, color: "var(--text-1)", letterSpacing:"-0.01em", fontWeight: font.heroWeight }}>{s.label}</div>
+            <div style={{ fontFamily: font.mono, fontSize: 9, color: "var(--text-3)", letterSpacing:"0.18em", marginTop: 2, fontWeight: 500 }}>{s.key}</div>
           </div>
           <div style={{ display:"flex", alignItems:"center", gap: 1, height: 36 }}>
             {rows[i].map((v,k) => (
               <span key={k} style={{ flex: 1, height: `${8+v*28}px`, background: k>rows[i].length-10?accent.primary:`rgba(140,200,200,${0.2+v*0.6})`, transition:"height 240ms linear, background 240ms" }}/>
             ))}
           </div>
-          <div style={{ fontFamily: font.mono, fontSize: 11, color: cInk2, textAlign: "right", fontWeight: 500 }}>{s.body}</div>
+          <div style={{ fontFamily: font.mono, fontSize: 11, color: "var(--text-2)", textAlign: "right", fontWeight: 500 }}>{s.body}</div>
         </div>
       ))}
     </div>
@@ -426,15 +418,15 @@ function ChannelTape({ font, accent }) {
 
 function AlertTicker({ font, accent }) {
   return (
-    <div style={{ display:"flex", gap: 40, overflow:"hidden", whiteSpace:"nowrap", padding:"10px 0", borderTop:"1px solid "+cRule, borderBottom:"1px solid "+cRule, background: cBg2, fontFamily: font.mono, fontSize: 11, color: cInk2, letterSpacing:"0.06em", fontWeight: 500 }}>
+    <div style={{ display:"flex", gap: 40, overflow:"hidden", whiteSpace:"nowrap", padding:"10px 0", borderTop:"1px solid var(--border)", borderBottom:"1px solid var(--border)", background: "var(--surface)", fontFamily: font.mono, fontSize: 11, color: "var(--text-2)", letterSpacing:"0.06em", fontWeight: 500 }}>
       <div style={{ display:"flex", gap: 40, animation:"cTick 50s linear infinite", flexShrink: 0 }}>
         {[...SHEPHERD.alerts, ...SHEPHERD.alerts].map((a,i) => (
           <span key={i} style={{ display:"inline-flex", alignItems:"center", gap: 12 }}>
-            <span style={{ display:"inline-block", width: 8, height: 8, borderRadius: 8, background: a.sev==="red"?cAlert:a.sev==="amber"?accent.voice:accent.primary }}/>
-            <span style={{ color: cInk3 }}>{a.t}</span>
+            <span style={{ display:"inline-block", width: 8, height: 8, borderRadius: 8, background: a.sev==="red"?"var(--alert)":a.sev==="amber"?accent.voice:accent.primary }}/>
+            <span style={{ color: "var(--text-3)" }}>{a.t}</span>
             <span style={{ color: accent.primary }}>{a.agency}</span>
-            <span style={{ color: cInk }}>{a.body}</span>
-            <span style={{ color: cRule }}>·</span>
+            <span style={{ color: "var(--text-1)" }}>{a.body}</span>
+            <span style={{ color: "var(--border)" }}>·</span>
           </span>
         ))}
       </div>
@@ -442,7 +434,6 @@ function AlertTicker({ font, accent }) {
   );
 }
 
-// ── Voice panel (moved under hero, font weight bumped) ─────────────────────
 function VoicePanel({ font, accent }) {
   const [idx, setIdx] = React.useState(0);
   const [chars, setChars] = React.useState(0);
@@ -463,8 +454,8 @@ function VoicePanel({ font, accent }) {
   }, [idx]);
   const show = msgs.slice(0, idx+1);
   return (
-    <div style={{ border: "1px solid "+cRule, background: cBg2, padding:"22px 22px 18px", display:"flex", flexDirection:"column", gap: 18, height: "100%" }}>
-      <div style={{ display:"flex", justifyContent:"space-between", fontFamily: font.mono, fontSize: 11, color: cInk3, letterSpacing:"0.2em", fontWeight: font.uiWeight }}>
+    <div style={{ border: "1px solid var(--border)", background: "var(--surface)", padding:"22px 22px 18px", display:"flex", flexDirection:"column", gap: 18, height: "100%" }}>
+      <div style={{ display:"flex", justifyContent:"space-between", fontFamily: font.mono, fontSize: 11, color: "var(--text-3)", letterSpacing:"0.2em", fontWeight: font.uiWeight }}>
         <span style={{ color: accent.voice, display:"flex", alignItems:"center", gap: 8, fontWeight: font.uiWeight }}>
           <span style={{ width: 7, height: 7, borderRadius: 7, background: accent.voice, animation:"cBlink 1.2s infinite" }}/>
           COMPANION · VOICE CHANNEL
@@ -477,8 +468,8 @@ function VoicePanel({ font, accent }) {
           const text = isCurrent ? m.body.slice(0, chars) : m.body;
           const isBot = m.role === "bot";
           return (
-            <div key={i} style={{ fontFamily: font.display, fontSize: 15, lineHeight: 1.55, color: isBot?cInk:cInk2, paddingLeft: 14, borderLeft: `2px solid ${isBot?accent.voice:cInk3}`, fontStyle: isBot?"normal":"italic", opacity: i===show.length-1?1:0.55 }}>
-              <span style={{ display:"block", fontFamily: font.mono, fontSize: 10, letterSpacing:"0.2em", color: isBot?accent.voice:cInk3, marginBottom: 4, fontWeight: font.uiWeight }}>
+            <div key={i} style={{ fontFamily: font.display, fontSize: 15, lineHeight: 1.55, color: isBot?"var(--text-1)":"var(--text-2)", paddingLeft: 14, borderLeft: `2px solid ${isBot?accent.voice:"var(--text-3)"}`, fontStyle: isBot?"normal":"italic", opacity: i===show.length-1?1:0.55 }}>
+              <span style={{ display:"block", fontFamily: font.mono, fontSize: 10, letterSpacing:"0.2em", color: isBot?accent.voice:"var(--text-3)", marginBottom: 4, fontWeight: font.uiWeight }}>
                 {isBot?"SHPRD":"SARAH"} · {m.time}
               </span>
               {text}
@@ -496,19 +487,19 @@ function TweaksPanel({ tweaks, setKey, font, accent }) {
   return (
     <div style={{
       position: "fixed", right: 20, bottom: 20, zIndex: 100,
-      background: "#0e1318", border: "1px solid "+cRule, padding: 16, width: 300,
-      fontFamily: font.mono, fontSize: 11, color: cInk2, letterSpacing: "0.04em",
+      background: "var(--surface)", border: "1px solid var(--border)", padding: 16, width: 300,
+      fontFamily: font.mono, fontSize: 11, color: "var(--text-2)", letterSpacing: "0.04em",
       boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
     }}>
       <div style={{ fontWeight: 700, color: accent.primary, letterSpacing:"0.2em", marginBottom: 14, fontSize: 10 }}>TWEAKS</div>
       <div style={{ marginBottom: 14 }}>
-        <div style={{ color: cInk3, marginBottom: 6, fontSize: 9, letterSpacing:"0.18em" }}>FONT</div>
+        <div style={{ color: "var(--text-3)", marginBottom: 6, fontSize: 9, letterSpacing:"0.18em" }}>FONT</div>
         <div style={{ display:"grid", gap: 4 }}>
           {Object.entries(FONT_PRESETS).map(([k, v]) => (
             <button key={k} onClick={() => setKey("fontPreset", k)} style={{
-              background: tweaks.fontPreset===k?"#1a2129":"transparent",
-              color: tweaks.fontPreset===k?cInk:cInk2,
-              border: "1px solid "+(tweaks.fontPreset===k?accent.primary:cRule),
+              background: tweaks.fontPreset===k?"var(--surface-2)":"transparent",
+              color: tweaks.fontPreset===k?"var(--text-1)":"var(--text-2)",
+              border: "1px solid "+(tweaks.fontPreset===k?accent.primary:"var(--border)"),
               padding: "7px 10px", textAlign:"left", cursor:"pointer",
               fontFamily: v.display, fontSize: 13, fontWeight: v.heroWeight,
             }}>{v.label}</button>
@@ -516,12 +507,12 @@ function TweaksPanel({ tweaks, setKey, font, accent }) {
         </div>
       </div>
       <div style={{ marginBottom: 14 }}>
-        <div style={{ color: cInk3, marginBottom: 6, fontSize: 9, letterSpacing:"0.18em" }}>ACCENT</div>
+        <div style={{ color: "var(--text-3)", marginBottom: 6, fontSize: 9, letterSpacing:"0.18em" }}>ACCENT</div>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap: 4 }}>
           {Object.entries(ACCENT_PRESETS).map(([k,v]) => (
             <button key={k} onClick={() => setKey("accentPreset", k)} style={{
-              background: tweaks.accentPreset===k?"#1a2129":"transparent",
-              color: cInk, border: "1px solid "+(tweaks.accentPreset===k?v.primary:cRule),
+              background: tweaks.accentPreset===k?"var(--surface-2)":"transparent",
+              color: "var(--text-1)", border: "1px solid "+(tweaks.accentPreset===k?v.primary:"var(--border)"),
               padding: "8px 10px", cursor:"pointer", textAlign:"left", fontSize: 10,
               display:"flex", flexDirection:"column", gap: 4,
             }}>
@@ -529,20 +520,20 @@ function TweaksPanel({ tweaks, setKey, font, accent }) {
                 <span style={{ width: 12, height: 12, background: v.primary }}/>
                 <span style={{ width: 12, height: 12, background: v.voice }}/>
               </span>
-              <span style={{ color: cInk2 }}>{v.label}</span>
+              <span style={{ color: "var(--text-2)" }}>{v.label}</span>
             </button>
           ))}
         </div>
       </div>
       <div>
-        <div style={{ color: cInk3, marginBottom: 6, fontSize: 9, letterSpacing:"0.18em" }}>SUBHEADING COLOR</div>
+        <div style={{ color: "var(--text-3)", marginBottom: 6, fontSize: 9, letterSpacing:"0.18em" }}>SUBHEADING COLOR</div>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap: 4 }}>
           {Object.entries(SUBHEAD_COLORS).map(([k,v]) => {
             const swatch = v.get(accent);
             return (
               <button key={k} onClick={() => setKey("subheadColor", k)} style={{
-                background: tweaks.subheadColor===k?"#1a2129":"transparent",
-                border: "1px solid "+(tweaks.subheadColor===k?swatch:cRule),
+                background: tweaks.subheadColor===k?"var(--surface-2)":"transparent",
+                border: "1px solid "+(tweaks.subheadColor===k?swatch:"var(--border)"),
                 padding: "8px 10px", cursor:"pointer", textAlign:"left", fontSize: 10,
                 display:"flex", alignItems:"center", gap: 8,
               }}>
@@ -568,19 +559,19 @@ function VariantSignal() {
   const subColor = (SUBHEAD_COLORS[tweaks.subheadColor] || SUBHEAD_COLORS.accent).get(accent);
 
   return (
-    <div style={{ width:"100%", minHeight:"100vh", background: cBg, color: cInk, fontFamily: font.display, overflowX:"hidden" }}>
+    <div style={{ width:"100%", minHeight:"100vh", background: "var(--bg)", color: "var(--text-1)", fontFamily: font.display, overflowX:"hidden" }}>
       <style>{`
         @keyframes cBlink { 0%,50%{opacity:1} 51%,100%{opacity:0.2} }
         @keyframes cTick { from { transform: translateX(0) } to { transform: translateX(-50%) } }
-        .c-link { color: ${cInk2}; cursor: pointer; font-family: ${font.mono}; font-size: 11px; letter-spacing: 0.2em; font-weight: ${font.uiWeight}; text-decoration: none; }
+        .c-link { color: var(--text-2); cursor: pointer; font-family: ${font.mono}; font-size: 11px; letter-spacing: 0.2em; font-weight: ${font.uiWeight}; text-decoration: none; }
         .c-link:hover { color: ${accent.primary}; }
-        .c-grid-bg { background-image: linear-gradient(${cRule} 1px, transparent 1px), linear-gradient(90deg, ${cRule} 1px, transparent 1px); background-size: 48px 48px; }
+        .c-grid-bg { background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 48px 48px; }
       `}</style>
 
       {/* Mission bar — uplink + sys nominal removed */}
-      <header style={{ display:"grid", gridTemplateColumns:"auto 1fr auto", alignItems:"center", padding:"14px 32px", borderBottom:"1px solid "+cRule, background: cBg2, gap: 32 }}>
+      <header style={{ display:"grid", gridTemplateColumns:"auto 1fr auto", alignItems:"center", padding:"14px 32px", borderBottom:"1px solid var(--border)", background: "var(--surface)", gap: 32 }}>
         <div style={{ display:"flex", alignItems:"center", gap: 12 }}>
-          <svg width="18" height="18" viewBox="0 0 18 18" style={{ animation: "cOrbPulse 2.8s ease-in-out infinite" }}><circle cx="9" cy="9" r="4" fill="#3fb579"/><circle cx="9" cy="9" r="8" stroke="#3fb579" strokeWidth="1" fill="none" opacity="0.4"/></svg>
+          <svg width="18" height="18" viewBox="0 0 18 18" style={{ animation: "cOrbPulse 2.8s ease-in-out infinite" }}><circle cx="9" cy="9" r="4" fill="var(--amber)"/><circle cx="9" cy="9" r="8" stroke="var(--amber)" strokeWidth="1" fill="none" opacity="0.4"/></svg>
           <span style={{ fontFamily: font.display, fontSize: 20, letterSpacing: "0.02em", fontWeight: font.heroWeight }}>Shepherd</span>
           <span style={{ fontFamily: font.mono, fontSize: 12, color: subColor, letterSpacing:"0.22em", marginLeft: 8, fontWeight: font.uiWeight }}>OPS CONSOLE</span>
         </div>
@@ -590,7 +581,7 @@ function VariantSignal() {
           <a href="#streams" className="c-link">VOICE</a>
           <Link
             href="/sign-in"
-            style={{ background: accent.primary, color: cBg, border:"none", padding:"10px 18px", fontFamily: font.mono, fontSize: 11, letterSpacing:"0.22em", fontWeight: 700, cursor:"pointer", textDecoration: "none", display: "inline-block" }}
+            style={{ background: accent.primary, color: "var(--bg)", border:"none", padding:"10px 18px", fontFamily: font.mono, fontSize: 11, letterSpacing:"0.22em", fontWeight: 700, cursor:"pointer", textDecoration: "none", display: "inline-block" }}
           >
             ENTER THE DEMO →
           </Link>
@@ -607,13 +598,13 @@ function VariantSignal() {
         }}>
           When the plan breaks, Shepherd walks with you.
         </h1>
-        <p style={{ margin: 0, fontSize: 20, lineHeight: 1.55, color: cInk2, maxWidth: "58ch", fontWeight: 400 }}>
+        <p style={{ margin: 0, fontSize: 20, lineHeight: 1.55, color: "var(--text-2)", maxWidth: "58ch", fontWeight: 400 }}>
           Five streams — plan, resources, location, the storm itself, the world outside your window — fused into one calm voice on the other end of the line.
         </p>
         <Link
           href="/sign-in"
           style={{
-            marginTop: 8, background: accent.primary, color: cBg, border:"none",
+            marginTop: 8, background: accent.primary, color: "var(--bg)", border:"none",
             padding:"20px 38px", fontFamily: font.mono, fontSize: 13,
             letterSpacing:"0.24em", fontWeight: 700, cursor:"pointer",
             textDecoration: "none", display: "inline-block",
@@ -627,7 +618,7 @@ function VariantSignal() {
       </section>
 
       {/* Mission panel */}
-      <section style={{ padding:"72px 32px 96px", borderTop:"1px solid "+cRule, borderBottom:"1px solid "+cRule, background: cBg2, textAlign:"center", marginBottom: 72 }}>
+      <section style={{ padding:"72px 32px 96px", borderTop:"1px solid var(--border)", borderBottom:"1px solid var(--border)", background: "var(--surface)", textAlign:"center", marginBottom: 72 }}>
         <div style={{ fontFamily: font.mono, fontSize: 12, color: subColor, letterSpacing:"0.3em", fontWeight: 700, marginBottom: 20 }}>
           MISSION
         </div>
@@ -641,21 +632,21 @@ function VariantSignal() {
         </h2>
         <p style={{
           margin: "24px auto 0", fontFamily: font.display,
-          fontSize: 22, lineHeight: 1.5, color: cInk2,
+          fontSize: 22, lineHeight: 1.5, color: "var(--text-2)",
           fontWeight: 400, maxWidth: "46ch", textWrap: "balance", fontStyle: "italic",
         }}>
           Steady, personalized guidance for the moments your plan stops matching reality.
         </p>
       </section>
 
-      {/* UNDER HERO: radar + voice channel side by side */}
+      {/* UNDER HERO: radar + companion (simulated chat) */}
       <section style={{ padding:"0 32px 56px", display:"grid", gridTemplateColumns:"1.15fr 1fr", gap: 32, alignItems:"stretch" }}>
-        <div style={{ border: "1px solid "+cRule, background: cBg2, position:"relative", overflow:"hidden", minHeight: 560 }}>
+        <div style={{ border: "1px solid var(--border)", background: "var(--surface)", position:"relative", overflow:"hidden", minHeight: 560 }}>
           <div className="c-grid-bg" style={{ position:"absolute", inset: 0, opacity: 0.5 }}/>
           <div style={{ position:"absolute", inset: 0 }}>
             <RadarSweep accent={accent.primary} voice={accent.voice} storm={stormPal} />
           </div>
-          <div style={{ position:"absolute", bottom: 14, left: 18, right: 18, display:"flex", justifyContent:"space-between", fontFamily: font.mono, fontSize: 10, color: cInk3, letterSpacing:"0.2em", fontWeight: font.uiWeight }}>
+          <div style={{ position:"absolute", bottom: 14, left: 18, right: 18, display:"flex", justifyContent:"space-between", fontFamily: font.mono, fontSize: 10, color: "var(--text-3)", letterSpacing:"0.2em", fontWeight: font.uiWeight }}>
             <span>CAT 4 · 125 MPH / 155 G</span>
             <span>MVMT NNW 12 MPH</span>
             <span style={{ color: accent.voice }}>LANDFALL SUN 08:00</span>
@@ -685,13 +676,13 @@ function VariantSignal() {
       </section>
 
       {/* What it is — same narrative role as NotAPlanner (companion, not dashboard) */}
-      <section id="what-it-is" className="scroll-mt-24" style={{ padding:"56px 32px", borderTop:"1px solid "+cRule, background: cBg2 }}>
+      <section id="what-it-is" className="scroll-mt-24" style={{ padding:"56px 32px", borderTop:"1px solid var(--border)", background: "var(--surface)" }}>
         <div style={{ display:"grid", gridTemplateColumns:"200px 1fr 1fr", gap: 48 }}>
           <div style={{ fontFamily: font.mono, fontSize: 12, color: subColor, letterSpacing:"0.24em", fontWeight: 700 }}>CHARACTER</div>
           <h2 style={{ margin: 0, fontFamily: font.display, fontSize: 44, fontWeight: font.heroWeight, lineHeight: 1.05, letterSpacing:"-0.015em" }}>
             Not a planner.<br/><em style={{ color: accent.voice }}>A companion.</em>
           </h2>
-          <div style={{ fontSize: 16, lineHeight: 1.65, color: cInk2, display:"flex", flexDirection:"column", gap: 16 }}>
+          <div style={{ fontSize: 16, lineHeight: 1.65, color: "var(--text-2)", display:"flex", flexDirection:"column", gap: 16 }}>
             <p style={{ margin: 0 }}>{SHEPHERD.manifesto.paragraphs[0]}</p>
             <p style={{ margin: 0 }}>{SHEPHERD.manifesto.paragraphs[1]}</p>
           </div>
@@ -699,34 +690,34 @@ function VariantSignal() {
       </section>
 
       {/* States */}
-      <section style={{ padding:"72px 32px", borderTop:"1px solid "+cRule }}>
+      <section style={{ padding:"72px 32px", borderTop:"1px solid var(--border)" }}>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1.1fr", gap: 40, alignItems:"start" }}>
           <div>
             <div style={{ fontFamily: font.mono, fontSize: 12, color: subColor, letterSpacing:"0.24em", fontWeight: 700 }}>STATES</div>
             <h2 style={{ margin:"10px 0 0", fontFamily: font.display, fontSize: 48, fontWeight: font.heroWeight, lineHeight: 1.02, letterSpacing:"-0.015em" }}>
               Calm until<br/><em style={{ color: accent.voice }}>it can't be.</em>
             </h2>
-            <p style={{ marginTop: 20, fontSize: 16, lineHeight: 1.6, color: cInk2, maxWidth:"40ch", fontStyle:"italic" }}>
+            <p style={{ marginTop: 20, fontSize: 16, lineHeight: 1.6, color: "var(--text-2)", maxWidth:"40ch", fontStyle:"italic" }}>
               Most days: a single orb, breathing green. No storm, no feed. The product disappears until it's needed — then it arrives with your name, your tank, your mother's zip code, and a route that already accounts for the fuel line in Hammond.
             </p>
           </div>
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap: 14 }}>
-            <div style={{ border:"1px solid "+cRule, background: cBg2, padding: 24, display:"flex", flexDirection:"column", alignItems:"center", minHeight: 320, justifyContent:"center", gap: 16 }}>
-              <div style={{ fontFamily: font.mono, fontSize: 9, color: cInk3, letterSpacing:"0.22em", alignSelf:"stretch", display:"flex", justifyContent:"space-between", fontWeight: 600 }}>
+            <div style={{ border:"1px solid var(--border)", background: "var(--surface)", padding: 24, display:"flex", flexDirection:"column", alignItems:"center", minHeight: 320, justifyContent:"center", gap: 16 }}>
+              <div style={{ fontFamily: font.mono, fontSize: 9, color: "var(--text-3)", letterSpacing:"0.22em", alignSelf:"stretch", display:"flex", justifyContent:"space-between", fontWeight: 600 }}>
                 <span>STATE · CALM</span><span style={{ color: accent.primary }}>●</span>
               </div>
               <div style={{ width: 80, height: 80, borderRadius: 80, background: `radial-gradient(circle at 35% 30%, #9de0d5, ${accent.primary})`, boxShadow:`0 0 40px ${accent.primary}66`, animation:"cBreath 3s ease-in-out infinite" }}/>
-              <div style={{ fontFamily: font.display, fontStyle:"italic", fontSize: 15, color: cInk2, textAlign:"center", maxWidth:"22ch" }}>No NHC events. Shepherd is listening.</div>
+              <div style={{ fontFamily: font.display, fontStyle:"italic", fontSize: 15, color: "var(--text-2)", textAlign:"center", maxWidth:"22ch" }}>No NHC events. Shepherd is listening.</div>
             </div>
             <div style={{ border:`1px solid ${accent.voice}`, background:`linear-gradient(to bottom, ${accent.voice}14, transparent)`, padding: 24, display:"flex", flexDirection:"column", minHeight: 320, gap: 10 }}>
               <div style={{ fontFamily: font.mono, fontSize: 9, color: accent.voice, letterSpacing:"0.22em", display:"flex", justifyContent:"space-between", fontWeight: 600 }}>
                 <span>STATE · ACTIVE · T-36h</span><span style={{ animation:"cBlink 1s infinite" }}>●</span>
               </div>
-              <div style={{ fontFamily: font.display, fontSize: 15, lineHeight: 1.5, color: cInk, paddingTop: 4 }}>
+              <div style={{ fontFamily: font.display, fontSize: 15, lineHeight: 1.5, color: "var(--text-1)", paddingTop: 4 }}>
                 <span style={{ fontFamily: font.mono, fontSize: 9, color: accent.voice, letterSpacing:"0.16em", fontWeight: 600 }}>SHPRD 23:16</span><br/>
                 You leave today. Jackson — Hampton Inn, $89/night. Four nights is $356, leaves $644 buffer. I-10 West, then I-55 North. Leave by 2 PM when contraflow opens. Text your mom you're picking her up at 1.
               </div>
-              <div style={{ marginTop:"auto", borderTop:"1px dashed "+cRule, paddingTop: 10, fontFamily: font.mono, fontSize: 9, color: cInk3, letterSpacing:"0.16em", fontWeight: 600 }}>
+              <div style={{ marginTop:"auto", borderTop:"1px dashed var(--border)", paddingTop: 10, fontFamily: font.mono, fontSize: 9, color: "var(--text-3)", letterSpacing:"0.16em", fontWeight: 600 }}>
                 FUEL 37% · CASH $844 · DEPENDENT MOM SLIDELL
               </div>
             </div>
@@ -735,14 +726,14 @@ function VariantSignal() {
       </section>
 
       {/* CTA */}
-      <section style={{ padding:"96px 32px 48px", background:`radial-gradient(circle at 50% 0%, ${accent.voice}14, transparent 50%)`, borderTop:"1px solid "+cRule, textAlign:"center" }}>
+      <section style={{ padding:"96px 32px 48px", background:`radial-gradient(circle at 50% 0%, ${accent.voice}14, transparent 50%)`, borderTop:"1px solid var(--border)", textAlign:"center" }}>
         <div style={{ fontFamily: font.mono, fontSize: 12, color: subColor, letterSpacing:"0.24em", fontWeight: 700 }}>ENGAGE</div>
         <h2 style={{ margin:"24px auto 0", fontFamily: font.display, fontSize:"clamp(60px, 8vw, 120px)", fontWeight: font.heroWeight, lineHeight: 1, letterSpacing:"-0.02em", maxWidth:"14ch" }}>
           Meet <em style={{ color: accent.voice }}>Shepherd.</em>
         </h2>
         <Link
           href="/sign-in"
-          style={{ marginTop: 44, background: accent.voice, color: cBg, border:"none", padding:"18px 34px", fontFamily: font.mono, fontSize: 12, letterSpacing:"0.24em", fontWeight: 700, cursor:"pointer", textDecoration: "none", display: "inline-block" }}
+          style={{ marginTop: 44, background: accent.voice, color: "var(--bg)", border:"none", padding:"18px 34px", fontFamily: font.mono, fontSize: 12, letterSpacing:"0.24em", fontWeight: 700, cursor:"pointer", textDecoration: "none", display: "inline-block" }}
         >
           ENTER THE DEMO →
         </Link>
@@ -751,7 +742,7 @@ function VariantSignal() {
         </div>
       </section>
 
-      <footer style={{ borderTop:"1px solid "+cRule, background: cBg2, padding:"16px 32px", display:"flex", justifyContent:"center", fontFamily: font.mono, fontSize: 12, color: subColor, letterSpacing:"0.2em", fontWeight: font.uiWeight, textAlign: "center" }}>
+      <footer style={{ borderTop:"1px solid var(--border)", background: "var(--surface)", padding:"16px 32px", display:"flex", justifyContent:"center", fontFamily: font.mono, fontSize: 12, color: subColor, letterSpacing:"0.2em", fontWeight: font.uiWeight, textAlign: "center" }}>
         <span>TULANE AI CHALLENGE · MMXXVI</span>
       </footer>
 

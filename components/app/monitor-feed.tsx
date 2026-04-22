@@ -6,7 +6,7 @@ import { alerts, type AlertSeverity } from "@/lib/mock-data";
 function barColor(s: AlertSeverity) {
   if (s === "red") return "var(--alert)";
   if (s === "amber") return "var(--amber)";
-  return "#3b82f6";
+  return "var(--calm)";
 }
 
 export function MonitorFeed({ useScrollArea }: { useScrollArea: boolean }) {

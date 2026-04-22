@@ -122,7 +122,7 @@ export function MonitorMap({ isMobile }: MonitorMapProps) {
       disableDefaultUI: true,
       styles: mapDarkStyles,
       gestureHandling: isMobile ? "greedy" : "auto",
-      backgroundColor: "#0e1821",
+      backgroundColor: "#0a0d10",
     }),
     [isMobile]
   );

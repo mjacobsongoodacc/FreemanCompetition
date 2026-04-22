@@ -3,10 +3,10 @@ import { Button } from "@/components/ui/button";
 
 export default function SignInPage() {
   return (
-    <div className="flex min-h-dvh flex-col bg-bg md:min-h-dvh md:flex-row">
-      <div className="relative flex h-[180px] w-full flex-col items-center justify-center bg-sidebar-bg px-6 md:h-auto md:min-h-dvh md:w-1/2 md:justify-center">
+    <div className="relative flex min-h-dvh flex-col items-center bg-bg px-6 pb-20 pt-20 lg:pt-28">
+      <div className="flex flex-col items-center">
         <div
-          className="h-16 w-16 rounded-full"
+          className="h-14 w-14 rounded-full lg:h-16 lg:w-16"
           style={{
             background:
               "radial-gradient(circle at 35% 30%, #f4e0c8, var(--amber-deep))",
@@ -15,44 +15,42 @@ export default function SignInPage() {
           }}
           aria-hidden
         />
-        <p className="mt-4 font-display text-[32px] font-semibold text-text-1">
+        <p className="mt-6 font-display text-3xl font-semibold text-text-1 lg:text-[32px]">
           Shepherd.
         </p>
         <p className="mt-2 text-center font-mono text-[11px] font-medium uppercase tracking-wide text-text-2">
           Personal disaster companion
         </p>
-        <p className="absolute bottom-6 left-6 hidden font-mono text-[10px] uppercase tracking-wider text-text-3 md:block">
-          Demo build · Tulane AI Challenge
+      </div>
+
+      <div className="mt-20 w-full max-w-md space-y-6 lg:mt-28">
+        <h1 className="font-display text-xl font-semibold text-text-1">
+          Try the demo
+        </h1>
+        <p className="font-body text-sm leading-relaxed text-text-2">
+          No account needed for the pitch build — jump straight into the
+          companion and storm monitor.
+        </p>
+        <Button asChild className="h-12 w-full">
+          <Link href="/app">Open Shepherd</Link>
+        </Button>
+        <p className="flex min-h-touch flex-col justify-center font-body text-sm leading-relaxed text-text-2">
+          New here?{" "}
+          <Link
+            href="/sign-up"
+            className="shepherd-link font-medium text-amber underline-offset-4 hover:underline"
+          >
+            Same demo entry
+          </Link>
         </p>
       </div>
-      <div className="flex flex-1 flex-col bg-bg md:w-1/2">
-        <div className="flex flex-1 flex-col items-center justify-center px-6 py-8 md:flex-row md:items-start md:justify-center md:gap-10 md:py-12">
-          <div className="w-full max-w-md space-y-6">
-            <h1 className="font-display text-xl font-semibold text-text-1">
-              Try the demo
-            </h1>
-            <p className="font-body text-sm leading-relaxed text-text-2">
-              No account needed for the pitch build — jump straight into the
-              companion and storm monitor.
-            </p>
-            <Button asChild className="h-12 w-full">
-              <Link href="/app">Open Shepherd</Link>
-            </Button>
-            <p className="text-center font-body text-sm text-text-2 md:text-left">
-              New here?{" "}
-              <Link
-                href="/sign-up"
-                className="shepherd-link font-medium text-amber underline-offset-4 hover:underline"
-              >
-                Same demo entry
-              </Link>
-            </p>
-          </div>
-          <p className="mt-6 max-w-[240px] text-center font-mono text-[11px] text-text-3 md:mt-10 md:text-left">
-            This is a demo build for Tulane AI Challenge 2026.
-          </p>
-        </div>
-      </div>
+
+      <p className="absolute right-6 top-6 max-w-[240px] text-right font-mono text-[11px] text-text-3">
+        This is a demo build for Tulane AI Challenge 2026.
+      </p>
+      <p className="absolute bottom-6 left-6 font-mono text-[10px] uppercase tracking-wider text-text-3">
+        Demo build · Tulane AI Challenge
+      </p>
     </div>
   );
 }

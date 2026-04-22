@@ -23,14 +23,9 @@ import {
   useState,
 } from "react";
 
-const BG_BASE = "#0F0F11";
-const BG_SURFACE = "#1A1A1D";
-const BG_ELEVATED = "#242428";
-const BORDER_SUBTLE = "rgba(255, 255, 255, 0.06)";
-const TEXT_PRIMARY = "#F5F5F7";
-const TEXT_SECONDARY = "#9A9AA3";
-const ACCENT = "#4FB3FF";
-const BUTTON_PRIMARY = "#0A0A0C";
+const BORDER_SUBTLE = "color-mix(in oklab, var(--text-1) 7%, transparent)";
+const MAP_ROUTE_LINE = "#3fb579";
+const MAP_MARKER_END = "#e8ecef";
 
 const stitchDataUrl: string = (() => {
   const parts: string[] = [];
@@ -56,7 +51,7 @@ const stitchDataUrl: string = (() => {
 })();
 
 const pageStitch: CSSProperties = {
-  backgroundColor: BG_BASE,
+  backgroundColor: "var(--bg)",
   backgroundImage: stitchDataUrl,
   backgroundSize: "48px 48px",
 };
@@ -87,7 +82,7 @@ function LiquidGlassFrame({
       <div
         className={`h-full w-full backdrop-blur-md backdrop-saturate-150 ${hoverBorderBrighten ? "group-hover/liquid:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]" : ""}`}
         style={{
-          background: BUTTON_PRIMARY,
+          background: "var(--bg)",
           boxShadow: "0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)",
         }}
       >
@@ -254,7 +249,7 @@ function PrimaryButton({
       className={`relative w-full min-h-[44px] rounded-lg ${className}`}
     >
       <LiquidGlassFrame className="rounded-lg overflow-hidden" hoverBorderBrighten>
-        <div className="flex h-full w-full min-h-[44px] items-center justify-center gap-2 px-4 py-2.5 text-[15px] font-medium text-[#F5F5F7]">
+        <div className="flex h-full w-full min-h-[44px] items-center justify-center gap-2 px-4 py-2.5 text-[15px] font-medium text-text-1">
           {children}
         </div>
       </LiquidGlassFrame>
@@ -307,7 +302,7 @@ export default function App() {
         source: "route",
         layout: { "line-join": "round", "line-cap": "round" },
         paint: {
-          "line-color": ACCENT,
+          "line-color": MAP_ROUTE_LINE,
           "line-width": 9,
           "line-opacity": 0.2,
           "line-blur": 2,
@@ -318,7 +313,7 @@ export default function App() {
         type: "line",
         source: "route",
         layout: { "line-join": "round", "line-cap": "round" },
-        paint: { "line-color": ACCENT, "line-width": 4, "line-opacity": 1 },
+        paint: { "line-color": MAP_ROUTE_LINE, "line-width": 4, "line-opacity": 1 },
       });
 
       const start = line.geometry.coordinates[0] as [number, number];
@@ -326,10 +321,10 @@ export default function App() {
         line.geometry.coordinates.length - 1
       ] as [number, number];
 
-      new mapboxgl.Marker({ color: ACCENT })
+      new mapboxgl.Marker({ color: MAP_ROUTE_LINE })
         .setLngLat(start)
         .addTo(map);
-      new mapboxgl.Marker({ color: "#F5F5F7" })
+      new mapboxgl.Marker({ color: MAP_MARKER_END })
         .setLngLat(end)
         .addTo(map);
 
@@ -379,7 +374,7 @@ export default function App() {
   return (
     <div
       className="min-h-dvh w-full overflow-hidden font-sans antialiased"
-      style={{ color: TEXT_PRIMARY, ...pageStitch }}
+      style={{ color: "var(--text-1)", ...pageStitch }}
     >
       <div className="pointer-events-none fixed left-0 right-0 top-0 z-40">
         <div className="pointer-events-auto">
@@ -390,14 +385,14 @@ export default function App() {
             >
               <span
                 className="text-[18px] font-semibold"
-                style={{ color: TEXT_PRIMARY }}
+                style={{ color: "var(--text-1)" }}
               >
                 Wayfind
               </span>
               <div className="flex items-center gap-3">
                 <div
                   className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium"
-                  style={{ background: BG_ELEVATED, color: TEXT_PRIMARY }}
+                  style={{ background: "var(--surface-2)", color: "var(--text-1)" }}
                 >
                   MC
                 </div>
@@ -414,7 +409,7 @@ export default function App() {
                     className="inline-block min-w-0 overflow-hidden rounded-lg"
                     hoverBorderBrighten
                   >
-                    <span className="inline-flex h-9 items-center gap-2 px-3 text-sm font-medium text-[#F5F5F7]">
+                    <span className="inline-flex h-9 items-center gap-2 px-3 text-sm font-medium text-text-1">
                       <Plus className="h-4 w-4" strokeWidth={2} />
                       New trip
                     </span>
@@ -437,33 +432,33 @@ export default function App() {
       />
 
       <aside
-        className="pointer-events-auto fixed z-10 box-border flex w-[360px] flex-col overflow-hidden rounded-xl border border-[rgba(255,255,255,0.06)]"
+        className="pointer-events-auto fixed z-10 box-border flex w-[360px] flex-col overflow-hidden rounded-xl border border-border"
         style={{
           left: 16,
           top: 72,
           bottom: 16,
-          backgroundColor: BG_SURFACE,
+          backgroundColor: "var(--surface)",
           backgroundImage: stitchDataUrl,
           backgroundSize: "48px 48px",
           boxShadow: "0 4px 16px rgba(0,0,0,0.25)",
         }}
       >
         <div className="shrink-0 border-b p-4" style={{ borderColor: BORDER_SUBTLE }}>
-          <h1 className="mb-3 text-lg font-semibold" style={{ color: TEXT_PRIMARY }}>
+          <h1 className="mb-3 text-lg font-semibold" style={{ color: "var(--text-1)" }}>
             Directions
           </h1>
           <div className="space-y-2">
             <div
               className="flex items-center gap-2 rounded-lg border px-3 py-2"
-              style={{ borderColor: BORDER_SUBTLE, background: BG_BASE }}
+              style={{ borderColor: BORDER_SUBTLE, background: "var(--bg)" }}
             >
               <MapPin
                 className="h-4 w-4 shrink-0"
-                style={{ color: TEXT_SECONDARY }}
+                style={{ color: "var(--text-2)" }}
               />
               <input
                 className="min-w-0 flex-1 bg-transparent text-sm outline-none"
-                style={{ color: TEXT_PRIMARY }}
+                style={{ color: "var(--text-1)" }}
                 value={from}
                 onChange={(e) => setFrom(e.target.value)}
                 aria-label="From"
@@ -471,15 +466,15 @@ export default function App() {
             </div>
             <div
               className="flex items-center gap-2 rounded-lg border px-3 py-2"
-              style={{ borderColor: BORDER_SUBTLE, background: BG_BASE }}
+              style={{ borderColor: BORDER_SUBTLE, background: "var(--bg)" }}
             >
               <Flag
                 className="h-4 w-4 shrink-0"
-                style={{ color: TEXT_SECONDARY }}
+                style={{ color: "var(--text-2)" }}
               />
               <input
                 className="min-w-0 flex-1 bg-transparent text-sm outline-none"
-                style={{ color: TEXT_PRIMARY }}
+                style={{ color: "var(--text-1)" }}
                 value={to}
                 onChange={(e) => setTo(e.target.value)}
                 aria-label="To"
@@ -490,7 +485,7 @@ export default function App() {
         <div
           className="min-h-0 flex-1 overflow-y-auto"
           style={{
-            backgroundColor: BG_SURFACE,
+            backgroundColor: "var(--surface)",
             backgroundImage: stitchDataUrl,
             backgroundSize: "48px 48px",
           }}
@@ -505,20 +500,20 @@ export default function App() {
                   style={{ borderColor: BORDER_SUBTLE }}
                 >
                   <div className="flex gap-3 px-4 py-3">
-                    <div className="flex w-7 shrink-0 flex-col items-center gap-0.5 pt-0.5 text-[11px] font-medium" style={{ color: TEXT_SECONDARY }}>
+                    <div className="flex w-7 shrink-0 flex-col items-center gap-0.5 pt-0.5 text-[11px] font-medium" style={{ color: "var(--text-2)" }}>
                       {i + 1}
                     </div>
                     <Icon
                       className="mt-0.5 h-4 w-4 shrink-0"
-                      style={{ color: TEXT_SECONDARY }}
+                      style={{ color: "var(--text-2)" }}
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm leading-snug" style={{ color: TEXT_PRIMARY }}>
+                      <p className="text-sm leading-snug" style={{ color: "var(--text-1)" }}>
                         {s.instruction}
                       </p>
                       <p
                         className="mt-1 text-xs"
-                        style={{ color: TEXT_SECONDARY }}
+                        style={{ color: "var(--text-2)" }}
                       >
                         {s.distance}
                       </p>
@@ -531,14 +526,14 @@ export default function App() {
         </div>
         <div
           className="shrink-0 space-y-3 border-t p-4"
-          style={{ borderColor: BORDER_SUBTLE, background: BG_BASE, backgroundImage: stitchDataUrl, backgroundSize: "48px 48px" }}
+          style={{ borderColor: BORDER_SUBTLE, background: "var(--bg)", backgroundImage: stitchDataUrl, backgroundSize: "48px 48px" }}
         >
           <div
             className="flex items-baseline justify-between text-sm"
-            style={{ color: TEXT_PRIMARY }}
+            style={{ color: "var(--text-1)" }}
           >
             <span className="font-medium">24 min</span>
-            <span style={{ color: TEXT_SECONDARY }}>3.2 mi</span>
+            <span style={{ color: "var(--text-2)" }}>3.2 mi</span>
           </div>
           <PrimaryButton
             onClick={() => showToast("Starting navigation…")}
@@ -575,7 +570,7 @@ export default function App() {
               <div
                 className={`min-h-0 flex-1 overflow-y-auto ${chatExpanded ? "block" : "hidden"}`}
                 style={{
-                  backgroundColor: BG_SURFACE,
+                  backgroundColor: "var(--surface)",
                   backgroundImage: stitchDataUrl,
                   backgroundSize: "48px 48px",
                 }}
@@ -590,14 +585,14 @@ export default function App() {
                       style={
                         m.role === "user"
                           ? {
-                              background: BG_ELEVATED,
+                              background: "var(--surface-2)",
                               borderColor: BORDER_SUBTLE,
-                              color: TEXT_PRIMARY,
+                              color: "var(--text-1)",
                             }
                           : {
-                              background: BG_SURFACE,
+                              background: "var(--surface)",
                               border: `1px solid ${BORDER_SUBTLE}`,
-                              color: TEXT_PRIMARY,
+                              color: "var(--text-1)",
                             }
                       }
                     >
@@ -608,15 +603,15 @@ export default function App() {
               </div>
               <div
                 className="shrink-0 p-2"
-                style={{ background: BUTTON_PRIMARY }}
+                style={{ background: "var(--bg)" }}
               >
                 <div
-                  className="flex items-center gap-2 rounded-xl border border-[rgba(255,255,255,0.08)] bg-[#0A0A0C] px-3 py-2"
+                  className="flex items-center gap-2 rounded-xl border border-border bg-bg px-3 py-2"
                 >
                   <input
                     ref={inputRef}
                     className="min-w-0 flex-1 bg-transparent text-sm outline-none"
-                    style={{ color: TEXT_PRIMARY }}
+                    style={{ color: "var(--text-1)" }}
                     placeholder="Ask about your route…"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
@@ -630,11 +625,11 @@ export default function App() {
                       type="button"
                       onClick={send}
                       className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border"
-                      style={{ borderColor: BORDER_SUBTLE, background: BG_SURFACE }}
+                      style={{ borderColor: BORDER_SUBTLE, background: "var(--surface)" }}
                       aria-label="Send"
                       whileTap={{ scale: 0.98, transition: { duration: 0.08, ease: "easeOut" } }}
                     >
-                      <ArrowUp className="h-4 w-4" style={{ color: TEXT_PRIMARY }} />
+                      <ArrowUp className="h-4 w-4" style={{ color: "var(--text-1)" }} />
                     </motion.button>
                   ) : null}
                 </div>
@@ -653,9 +648,9 @@ export default function App() {
             transition={{ duration: 0.2 }}
             className="pointer-events-none fixed bottom-20 left-1/2 z-[100] -translate-x-1/2 rounded-lg border px-4 py-2 text-sm"
             style={{
-              background: BG_SURFACE,
+              background: "var(--surface)",
               borderColor: BORDER_SUBTLE,
-              color: TEXT_PRIMARY,
+              color: "var(--text-1)",
             }}
           >
             {toast}

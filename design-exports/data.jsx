@@ -22,14 +22,12 @@ window.SHEPHERD = {
     { n: "04", key: "DISASTER",  label: "Disaster",  body: "What the storm is doing." },
     { n: "05", key: "WORLD",     label: "World",     body: "Traffic, outages, open gas." },
   ],
-  // Live-feeling chat excerpt for widgets
   chat: [
     { role: "user", time: "23:15", body: "Okay I'm scared. What do I actually do? I have $1,000 and a Civic." },
     { role: "bot",  time: "23:16", body: "You leave today. Jackson, Mississippi — Hampton Inn on County Line Road at $89/night. Four nights is $356, which leaves $644 for gas, food, and a buffer. I-10 West to Baton Rouge, then I-55 North. Leave by 2 PM when contraflow opens. Grey folder, mom's meds, grandma's photo box, three days of clothes. Text her you're picking her up at 1." },
     { role: "user", time: "23:17", body: "What if traffic is bad on I-10?" },
     { role: "bot",  time: "23:18", body: "Off at Williams, Airline Highway north to US-61. Adds 35 minutes but keeps you moving. Top off at the Shell at Williams before you get on — stations past Hammond went dry this morning." },
   ],
-  // Agency headlines (already in-world voice, not generic news)
   alerts: [
     { t: "23:14", agency: "NWS NHC",   sev: "red",   body: "HURRICANE WARNING extended to St. Tammany Parish" },
     { t: "22:58", agency: "LA GOHSEP", sev: "amber", body: "I-10 West contraflow begins 14:00 Tuesday" },
