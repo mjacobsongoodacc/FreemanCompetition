@@ -81,10 +81,69 @@ function homePinDataUri() {
   return `data:image/svg+xml;charset=UTF-8,${svg}`;
 }
 
+function smoothPath(
+  points: { lat: number; lng: number }[],
+  segments = 8
+): { lat: number; lng: number }[] {
+  if (points.length < 3) return points;
+  const result: { lat: number; lng: number }[] = [];
+  const pts = [points[0], ...points, points[points.length - 1]];
+
+  for (let i = 0; i < pts.length - 3; i++) {
+    const p0 = pts[i];
+    const p1 = pts[i + 1];
+    const p2 = pts[i + 2];
+    const p3 = pts[i + 3];
+    for (let t = 0; t < segments; t++) {
+      const s = t / segments;
+      const s2 = s * s;
+      const s3 = s2 * s;
+      const lat =
+        0.5 *
+        (2 * p1.lat +
+          (-p0.lat + p2.lat) * s +
+          (2 * p0.lat - 5 * p1.lat + 4 * p2.lat - p3.lat) * s2 +
+          (-p0.lat + 3 * p1.lat - 3 * p2.lat + p3.lat) * s3);
+      const lng =
+        0.5 *
+        (2 * p1.lng +
+          (-p0.lng + p2.lng) * s +
+          (2 * p0.lng - 5 * p1.lng + 4 * p2.lng - p3.lng) * s2 +
+          (-p0.lng + 3 * p1.lng - 3 * p2.lng + p3.lng) * s3);
+      result.push({ lat, lng });
+    }
+  }
+  return result;
+}
+
+function scalePolygon(
+  points: { lat: number; lng: number }[],
+  factor: number
+): { lat: number; lng: number }[] {
+  if (points.length === 0) return points;
+  const centroid = points.reduce(
+    (acc, p) => ({ lat: acc.lat + p.lat, lng: acc.lng + p.lng }),
+    { lat: 0, lng: 0 }
+  );
+  centroid.lat /= points.length;
+  centroid.lng /= points.length;
+  return points.map((p) => ({
+    lat: centroid.lat + (p.lat - centroid.lat) * factor,
+    lng: centroid.lng + (p.lng - centroid.lng) * factor,
+  }));
+}
+
+function forecastDotDataUri() {
+  const svg = encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3" fill="#E8A76F" opacity="0.7" stroke="#C78251" stroke-width="1"/></svg>`
+  );
+  return `data:image/svg+xml;charset=UTF-8,${svg}`;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- retained for external/icon URL references
 function stormIconDataUri() {
   const svg = encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="10" fill="#D05A3D" stroke="rgba(208,90,61,0.4)" stroke-width="4"/></svg>`
+    `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="10" fill="#D05A3D" stroke="rgba(208,90,61,0.4)" stroke-width="4"/></svg>`
   );
   return `data:image/svg+xml;charset=UTF-8,${svg}`;
 }
@@ -162,14 +221,46 @@ export function MonitorMap({ isMobile }: MonitorMapProps) {
   const prevStormPosRef = useRef<{ lat: number; lng: number } | null>(null);
 
   const mapRef = useRef<google.maps.Map | null>(null);
-  const trafficLayerRef = useRef<google.maps.TrafficLayer | null>(null);
 
   const routeColor =
-    meta?.urgency === "high" ? "#D05A3D" : "#E8A76F";
+    meta?.urgency === "high" ? "#D05A3D" : "#60A5FA";
 
   const coneBase = coneColors(disaster?.category);
-  const fillOpacity =
-    coneBase.fillOpacity + (conePulse && !reduce ? 0.15 : 0);
+
+  const smoothedCone = useMemo(() => smoothPath(mapConePath, 8), []);
+  const innerCone = useMemo(() => scalePolygon(smoothedCone, 0.7), [smoothedCone]);
+  const outerCone = useMemo(() => scalePolygon(smoothedCone, 1.15), [smoothedCone]);
+
+  const forecastDots = useMemo(() => {
+    if (mapConePath.length < 3) return [];
+    const stormPos = animatedStormPos;
+    let narrowIdx = 0;
+    let narrowDist = Infinity;
+    mapConePath.forEach((p, i) => {
+      const d = (p.lat - stormPos.lat) ** 2 + (p.lng - stormPos.lng) ** 2;
+      if (d < narrowDist) {
+        narrowDist = d;
+        narrowIdx = i;
+      }
+    });
+    const narrow = mapConePath[narrowIdx];
+    const byDist = mapConePath
+      .map((p) => ({
+        p,
+        d: (p.lat - narrow.lat) ** 2 + (p.lng - narrow.lng) ** 2,
+      }))
+      .sort((a, b) => b.d - a.d)
+      .slice(0, 3);
+    const wide = {
+      lat: byDist.reduce((a, x) => a + x.p.lat, 0) / byDist.length,
+      lng: byDist.reduce((a, x) => a + x.p.lng, 0) / byDist.length,
+    };
+    const pcts = [0.2, 0.4, 0.6, 0.8, 0.95];
+    return pcts.map((t) => ({
+      lat: narrow.lat + (wide.lat - narrow.lat) * t,
+      lng: narrow.lng + (wide.lng - narrow.lng) * t,
+    }));
+  }, [animatedStormPos]);
 
   useEffect(() => {
     if (!apiKey) return;
@@ -392,12 +483,6 @@ export function MonitorMap({ isMobile }: MonitorMapProps) {
 
   const onMapLoad = (map: google.maps.Map) => {
     mapRef.current = map;
-    if (trafficLayerRef.current) {
-      trafficLayerRef.current.setMap(null);
-    }
-    const layer = new google.maps.TrafficLayer();
-    layer.setMap(map);
-    trafficLayerRef.current = layer;
   };
 
   return (
@@ -412,8 +497,8 @@ export function MonitorMap({ isMobile }: MonitorMapProps) {
         .storm-spin {
           animation: storm-spin 20s linear infinite;
           transform-origin: center;
-          width: 28px;
-          height: 28px;
+          width: 32px;
+          height: 32px;
         }
         @media (prefers-reduced-motion: reduce) {
           .storm-spin { animation: none; }
@@ -447,7 +532,7 @@ export function MonitorMap({ isMobile }: MonitorMapProps) {
       ) : ready ? (
         <div className="relative h-full w-full">
           {directionsResult && leg && (
-            <div className="absolute left-3 top-3 z-10 rounded-md border border-border bg-[color-mix(in_oklab,var(--bg)_85%,transparent)] px-3 py-2 font-mono text-[10px] uppercase tracking-wider text-text-1 backdrop-blur-sm">
+            <div className="absolute left-3 top-3 z-10 rounded-md border border-border bg-[color-mix(in_oklab,var(--bg)_85%,transparent)] px-3 py-2 font-mono text-[10px] font-semibold uppercase tracking-wider text-text-1 backdrop-blur-sm">
               <div className="text-text-3">{destinationCity}</div>
               <div className="mt-0.5 flex flex-wrap items-center gap-2">
                 <span>{distanceText}</span>
@@ -470,15 +555,55 @@ export function MonitorMap({ isMobile }: MonitorMapProps) {
             onLoad={onMapLoad}
           >
             <Polygon
-              paths={mapConePath}
+              paths={outerCone}
               options={{
                 fillColor: coneBase.fill,
-                fillOpacity,
+                fillOpacity: 0.08 + (conePulse ? 0.06 : 0),
                 strokeColor: coneBase.stroke,
-                strokeOpacity: 0.6,
-                strokeWeight: 2,
+                strokeOpacity: 0.15,
+                strokeWeight: 1,
+                clickable: false,
+                zIndex: 1,
               }}
             />
+            <Polygon
+              paths={smoothedCone}
+              options={{
+                fillColor: coneBase.fill,
+                fillOpacity: coneBase.fillOpacity + (conePulse ? 0.1 : 0),
+                strokeColor: coneBase.stroke,
+                strokeOpacity: 0.5,
+                strokeWeight: 1.5,
+                clickable: false,
+                zIndex: 2,
+              }}
+            />
+            <Polygon
+              paths={innerCone}
+              options={{
+                fillColor: coneBase.fill,
+                fillOpacity: 0.35 + (conePulse ? 0.1 : 0),
+                strokeColor: coneBase.stroke,
+                strokeOpacity: 0.7,
+                strokeWeight: 1.5,
+                clickable: false,
+                zIndex: 3,
+              }}
+            />
+            {stormActive &&
+              forecastDots.map((pos, i) => (
+                <Marker
+                  key={`forecast-${i}`}
+                  position={pos}
+                  icon={{
+                    url: forecastDotDataUri(),
+                    scaledSize: new google.maps.Size(8, 8),
+                    anchor: new google.maps.Point(4, 4),
+                  }}
+                  clickable={false}
+                  zIndex={4}
+                />
+              ))}
             {routePath && routePath.length > 0 ? (
               <>
                 <Polyline
@@ -525,22 +650,47 @@ export function MonitorMap({ isMobile }: MonitorMapProps) {
               mapPaneName="overlayMouseTarget"
               getPixelPositionOffset={getPixelPositionOffset}
             >
-              <div className="storm-spin pointer-events-none">
+              <div className="storm-spin pointer-events-none" aria-hidden>
                 <svg
+                  width="32"
+                  height="32"
+                  viewBox="0 0 32 32"
                   xmlns="http://www.w3.org/2000/svg"
-                  width="28"
-                  height="28"
-                  viewBox="0 0 28 28"
-                  aria-hidden
                 >
                   <circle
-                    cx="14"
-                    cy="14"
-                    r="10"
-                    fill="#D05A3D"
-                    stroke="rgba(208,90,61,0.4)"
+                    cx="16"
+                    cy="16"
+                    r="15"
+                    fill="none"
+                    stroke="rgba(208,90,61,0.12)"
+                    strokeWidth="2"
+                  />
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r="13"
+                    fill="none"
+                    stroke="rgba(208,90,61,0.35)"
                     strokeWidth="4"
                   />
+                  <circle cx="16" cy="16" r="10" fill="#D05A3D" />
+                  <path
+                    d="M 16 16 Q 22 14 22 8"
+                    stroke="#7A2418"
+                    strokeWidth="1.5"
+                    fill="none"
+                    opacity="0.55"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M 16 16 Q 10 18 10 24"
+                    stroke="#7A2418"
+                    strokeWidth="1.5"
+                    fill="none"
+                    opacity="0.55"
+                    strokeLinecap="round"
+                  />
+                  <circle cx="16" cy="16" r="1.8" fill="#2A0F08" />
                 </svg>
               </div>
             </OverlayView>
@@ -555,7 +705,7 @@ export function MonitorMap({ isMobile }: MonitorMapProps) {
                 key={b.id}
                 type="button"
                 onClick={() => setMapType(b.id)}
-                className={`max-md:min-h-touch px-2.5 py-1.5 font-mono text-[10px] font-medium uppercase tracking-wider transition-colors ${
+                className={`max-md:min-h-touch px-2.5 py-1.5 font-mono text-[10px] font-[750] uppercase tracking-wider transition-colors ${
                   i > 0 ? "border-l border-border" : ""
                 } ${
                   mapType === b.id
