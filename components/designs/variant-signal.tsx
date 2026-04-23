@@ -103,6 +103,17 @@ function useGoogleFonts() {
   }, []);
 }
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = React.useState(false);
+  React.useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+  return isMobile;
+}
+
 // ── Hurricane Ida path map ─────────────────────────────────────────────────
 // Satellite image of the Gulf with Ida's track and a spinning hurricane icon.
 function RadarSweep({ accent, voice, storm }) {
@@ -392,24 +403,110 @@ function RadarSweep({ accent, voice, storm }) {
 }
 
 // ── Channel tape ───────────────────────────────────────────────────────────
-function ChannelTape({ font, accent }) {
+function ChannelTape({ font, accent, isMobile }) {
   const [rows, setRows] = React.useState(() => SHEPHERD.streams.map(() => Array.from({length:80}).map(()=>Math.random())));
   React.useEffect(() => { const id = setInterval(() => setRows(rs => rs.map(r => [...r.slice(1), Math.random()])), 260); return () => clearInterval(id); }, []);
   return (
     <div style={{ border: "1px solid var(--border)", background: "var(--surface)" }}>
       {SHEPHERD.streams.map((s, i) => (
-        <div key={s.key} style={{ display:"grid", gridTemplateColumns:"52px 110px 1fr 140px", alignItems:"center", padding:"16px 18px", borderBottom: i<4?"1px solid var(--border)":"none", gap: 16 }}>
-          <span style={{ fontFamily: font.mono, fontSize: 11, color: accent.primary, letterSpacing:"0.14em", fontWeight: 600 }}>CH{s.n}</span>
-          <div>
-            <div style={{ fontFamily: font.display, fontSize: 22, color: "var(--text-1)", letterSpacing:"-0.01em", fontWeight: font.heroWeight }}>{s.label}</div>
-            <div style={{ fontFamily: font.mono, fontSize: 9, color: "var(--text-3)", letterSpacing:"0.18em", marginTop: 2, fontWeight: 500 }}>{s.key}</div>
+        <div
+          key={s.key}
+          style={
+            isMobile
+              ? {
+                  display: "grid",
+                  gridTemplateColumns: "44px 1fr",
+                  gridTemplateRows: "auto auto auto",
+                  columnGap: 10,
+                  rowGap: 10,
+                  padding: "14px 16px",
+                  borderBottom: i < 4 ? "1px solid var(--border)" : "none",
+                  alignItems: "start",
+                }
+              : {
+                  display: "grid",
+                  gridTemplateColumns: "52px 110px 1fr 140px",
+                  alignItems: "center",
+                  padding: "16px 18px",
+                  borderBottom: i < 4 ? "1px solid var(--border)" : "none",
+                  gap: 16,
+                }
+          }
+        >
+          <span
+            style={{
+              fontFamily: font.mono,
+              fontSize: 11,
+              color: accent.primary,
+              letterSpacing: "0.14em",
+              fontWeight: 600,
+              ...(isMobile ? { gridColumn: 1, gridRow: 1 } : {}),
+            }}
+          >
+            CH{s.n}
+          </span>
+          <div style={isMobile ? { gridColumn: 2, gridRow: 1, minWidth: 0 } : {}}>
+            <div
+              style={{
+                fontFamily: font.display,
+                fontSize: isMobile ? 18 : 22,
+                color: "var(--text-1)",
+                letterSpacing: "-0.01em",
+                fontWeight: font.heroWeight,
+              }}
+            >
+              {s.label}
+            </div>
+            <div
+              style={{
+                fontFamily: font.mono,
+                fontSize: 9,
+                color: "var(--text-3)",
+                letterSpacing: "0.18em",
+                marginTop: 2,
+                fontWeight: 500,
+              }}
+            >
+              {s.key}
+            </div>
           </div>
-          <div style={{ display:"flex", alignItems:"center", gap: 1, height: 36 }}>
-            {rows[i].map((v,k) => (
-              <span key={k} style={{ flex: 1, height: `${8+v*28}px`, background: k>rows[i].length-10?accent.primary:`rgba(140,200,200,${0.2+v*0.6})`, transition:"height 240ms linear, background 240ms" }}/>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              height: 36,
+              minWidth: 0,
+              ...(isMobile ? { gridColumn: "1 / -1", gridRow: 2, width: "100%" } : {}),
+            }}
+          >
+            {rows[i].map((v, k) => (
+              <span
+                key={k}
+                style={{
+                  flex: 1,
+                  height: `${8 + v * 28}px`,
+                  background:
+                    k > rows[i].length - 10
+                      ? accent.primary
+                      : `rgba(140,200,200,${0.2 + v * 0.6})`,
+                  transition: "height 240ms linear, background 240ms",
+                }}
+              />
             ))}
           </div>
-          <div style={{ fontFamily: font.mono, fontSize: 11, color: "var(--text-2)", textAlign: "right", fontWeight: 500 }}>{s.body}</div>
+          <div
+            style={{
+              fontFamily: font.mono,
+              fontSize: isMobile ? 10 : 11,
+              color: "var(--text-2)",
+              textAlign: isMobile ? "left" : "right",
+              fontWeight: 500,
+              ...(isMobile ? { gridColumn: "1 / -1", gridRow: 3 } : {}),
+            }}
+          >
+            {s.body}
+          </div>
         </div>
       ))}
     </div>
@@ -552,6 +649,7 @@ function TweaksPanel({ tweaks, setKey, font, accent }) {
 function VariantSignal() {
   cUseTick(1000);
   useGoogleFonts();
+  const isMobile = useIsMobile();
   const { tweaks, editMode, setKey } = useTweaks();
   const font = FONT_PRESETS[tweaks.fontPreset] || FONT_PRESETS.sourceSerif;
   const accent = ACCENT_PRESETS[tweaks.accentPreset] || ACCENT_PRESETS.phosphor;
@@ -569,13 +667,14 @@ function VariantSignal() {
       `}</style>
 
       {/* Mission bar — uplink + sys nominal removed */}
-      <header style={{ display:"grid", gridTemplateColumns:"auto 1fr auto", alignItems:"center", padding:"14px 32px", borderBottom:"1px solid var(--border)", background: "var(--surface)", gap: 32 }}>
+      <header style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr" : "auto 1fr auto", alignItems:"center", padding: isMobile ? "14px 16px" : "14px 32px", borderBottom:"1px solid var(--border)", background: "var(--surface)", gap: isMobile ? 0 : 32 }}>
         <div style={{ display:"flex", alignItems:"center", gap: 12 }}>
           <svg width="18" height="18" viewBox="0 0 18 18" style={{ animation: "cOrbPulse 2.8s ease-in-out infinite" }}><circle cx="9" cy="9" r="4" fill="var(--amber)"/><circle cx="9" cy="9" r="8" stroke="var(--amber)" strokeWidth="1" fill="none" opacity="0.4"/></svg>
           <span style={{ fontFamily: font.display, fontSize: 20, letterSpacing: "0.02em", fontWeight: font.heroWeight }}>Shepherd</span>
           <span style={{ fontFamily: font.mono, fontSize: 12, color: subColor, letterSpacing:"0.22em", marginLeft: 8, fontWeight: font.uiWeight }}>OPS CONSOLE</span>
         </div>
-        <div/>
+        {!isMobile && <div/>}
+        {!isMobile && (
         <div style={{ display:"flex", alignItems:"center", gap: 24 }}>
           <a href="#what-it-is" className="c-link">WHAT IT IS</a>
           <a href="#streams" className="c-link">VOICE</a>
@@ -586,10 +685,11 @@ function VariantSignal() {
             ENTER THE DEMO →
           </Link>
         </div>
+        )}
       </header>
 
       {/* HERO — fully centered typographic */}
-      <section style={{ padding:"96px 32px 72px", textAlign:"center", display:"flex", flexDirection:"column", alignItems:"center", gap: 32 }}>
+      <section style={{ padding: isMobile ? "72px 20px 56px" : "96px 32px 72px", textAlign:"center", display:"flex", flexDirection:"column", alignItems:"center", gap: 32 }}>
         <h1 style={{
           margin: 0, fontFamily: font.display,
           fontSize:"clamp(52px, 7vw, 108px)",
@@ -598,7 +698,7 @@ function VariantSignal() {
         }}>
           When the plan breaks, Shepherd walks with you.
         </h1>
-        <p style={{ margin: 0, fontSize: 20, lineHeight: 1.55, color: "var(--text-2)", maxWidth: "58ch", fontWeight: 400 }}>
+        <p style={{ margin: 0, fontSize: 20, lineHeight: 1.55, color: "var(--text-2)", maxWidth: isMobile ? "100%" : "58ch", fontWeight: 400 }}>
           Five streams — plan, resources, location, the storm itself, the world outside your window — fused into one calm voice on the other end of the line.
         </p>
         <Link
@@ -618,7 +718,7 @@ function VariantSignal() {
       </section>
 
       {/* Mission panel */}
-      <section style={{ padding:"72px 32px 96px", borderTop:"1px solid var(--border)", borderBottom:"1px solid var(--border)", background: "var(--surface)", textAlign:"center", marginBottom: 72 }}>
+      <section style={{ padding: isMobile ? "56px 16px 64px" : "72px 32px 96px", borderTop:"1px solid var(--border)", borderBottom:"1px solid var(--border)", background: "var(--surface)", textAlign:"center", marginBottom: isMobile ? 48 : 72 }}>
         <div style={{ fontFamily: font.mono, fontSize: 12, color: subColor, letterSpacing:"0.3em", fontWeight: 700, marginBottom: 20 }}>
           MISSION
         </div>
@@ -633,38 +733,44 @@ function VariantSignal() {
         <p style={{
           margin: "24px auto 0", fontFamily: font.display,
           fontSize: 22, lineHeight: 1.5, color: "var(--text-2)",
-          fontWeight: 400, maxWidth: "46ch", textWrap: "balance", fontStyle: "italic",
+          fontWeight: 400, maxWidth: isMobile ? "100%" : "46ch", textWrap: "balance", fontStyle: "italic",
         }}>
           Steady, personalized guidance for the moments your plan stops matching reality.
         </p>
       </section>
 
       {/* UNDER HERO: radar + companion (simulated chat) */}
-      <section style={{ padding:"0 32px 56px", display:"grid", gridTemplateColumns:"1.15fr 1fr", gap: 32, alignItems:"stretch" }}>
-        <div style={{ border: "1px solid var(--border)", background: "var(--surface)", position:"relative", overflow:"hidden", minHeight: 560 }}>
+      <section style={{ padding: isMobile ? "0 16px 40px" : "0 32px 56px", display:"grid", gridTemplateColumns: isMobile ? "1fr" : "1.15fr 1fr", gap: isMobile ? 20 : 32, alignItems:"stretch" }}>
+        <div style={{ border: "1px solid var(--border)", background: "var(--surface)", position:"relative", overflow:"hidden", minHeight: isMobile ? 420 : 560 }}>
           <div className="c-grid-bg" style={{ position:"absolute", inset: 0, opacity: 0.5 }}/>
           <div style={{ position:"absolute", inset: 0 }}>
             <RadarSweep accent={accent.primary} voice={accent.voice} storm={stormPal} />
           </div>
-          <div style={{ position:"absolute", bottom: 14, left: 18, right: 18, display:"flex", justifyContent:"space-between", fontFamily: font.mono, fontSize: 10, color: "var(--text-3)", letterSpacing:"0.2em", fontWeight: font.uiWeight }}>
+          <div style={{ position:"absolute", bottom: 14, left: 18, right: 18, display:"flex", justifyContent: isMobile ? "center" : "space-between", flexWrap: isMobile ? "wrap" : "nowrap", gap: isMobile ? 8 : 0, rowGap: 6, fontFamily: font.mono, fontSize: isMobile ? 9 : 10, color: "var(--text-3)", letterSpacing:"0.2em", fontWeight: font.uiWeight }}>
             <span>CAT 4 · 125 MPH / 155 G</span>
             <span>MVMT NNW 12 MPH</span>
             <span style={{ color: accent.voice }}>LANDFALL SUN 08:00</span>
           </div>
         </div>
-        <div style={{ minHeight: 560 }}>
+        <div style={{ minHeight: isMobile ? 480 : 560 }}>
           <VoicePanel font={font} accent={accent} />
         </div>
       </section>
 
-      <AlertTicker font={font} accent={accent} />
+      {isMobile ? (
+        <div style={{ padding: "0 16px" }}>
+          <AlertTicker font={font} accent={accent} />
+        </div>
+      ) : (
+        <AlertTicker font={font} accent={accent} />
+      )}
 
       {/* Channel tape — "Voice" / Five streams (id streams matches legacy FiveStreams) */}
-      <section id="streams" className="scroll-mt-24" style={{ padding:"56px 32px" }}>
-        <div style={{ display:"flex", alignItems:"baseline", justifyContent:"space-between", marginBottom: 22 }}>
-          <div>
+      <section id="streams" className="scroll-mt-24" style={{ padding: isMobile ? "40px 16px" : "56px 32px" }}>
+        <div style={{ display:"flex", alignItems: isMobile ? "flex-start" : "baseline", justifyContent:"space-between", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 16 : 0, marginBottom: 22 }}>
+          <div style={{ minWidth: 0 }}>
             <div style={{ fontFamily: font.mono, fontSize: 12, color: subColor, letterSpacing:"0.24em", fontWeight: 700 }}>CHANNELS</div>
-            <h2 style={{ margin:"10px 0 0", fontFamily: font.display, fontSize: 42, fontWeight: font.heroWeight, letterSpacing:"-0.015em" }}>
+            <h2 style={{ margin:"10px 0 0", fontFamily: font.display, fontSize: isMobile ? 28 : 42, fontWeight: font.heroWeight, letterSpacing:"-0.015em", lineHeight: isMobile ? 1.12 : undefined }}>
               Five streams. <em style={{ color: accent.voice }}>One voice.</em>
             </h2>
           </div>
@@ -672,17 +778,17 @@ function VariantSignal() {
             SAMPLING 260ms · 5 OF 5 UP
           </div>
         </div>
-        <ChannelTape font={font} accent={accent} />
+        <ChannelTape font={font} accent={accent} isMobile={isMobile} />
       </section>
 
       {/* What it is — same narrative role as NotAPlanner (companion, not dashboard) */}
-      <section id="what-it-is" className="scroll-mt-24" style={{ padding:"56px 32px", borderTop:"1px solid var(--border)", background: "var(--surface)" }}>
-        <div style={{ display:"grid", gridTemplateColumns:"200px 1fr 1fr", gap: 48 }}>
+      <section id="what-it-is" className="scroll-mt-24" style={{ padding: isMobile ? "48px 16px" : "56px 32px", borderTop:"1px solid var(--border)", background: "var(--surface)" }}>
+        <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr" : "200px 1fr 1fr", gap: isMobile ? 24 : 48 }}>
           <div style={{ fontFamily: font.mono, fontSize: 12, color: subColor, letterSpacing:"0.24em", fontWeight: 700 }}>CHARACTER</div>
-          <h2 style={{ margin: 0, fontFamily: font.display, fontSize: 44, fontWeight: font.heroWeight, lineHeight: 1.05, letterSpacing:"-0.015em" }}>
+          <h2 style={{ margin: 0, fontFamily: font.display, fontSize: isMobile ? 32 : 44, fontWeight: font.heroWeight, lineHeight: 1.05, letterSpacing:"-0.015em" }}>
             Not a planner.<br/><em style={{ color: accent.voice }}>A companion.</em>
           </h2>
-          <div style={{ fontSize: 16, lineHeight: 1.65, color: "var(--text-2)", display:"flex", flexDirection:"column", gap: 16 }}>
+          <div style={{ fontSize: 16, lineHeight: 1.65, color: "var(--text-2)", display:"flex", flexDirection:"column", gap: 16, maxWidth: isMobile ? "100%" : undefined }}>
             <p style={{ margin: 0 }}>{SHEPHERD.manifesto.paragraphs[0]}</p>
             <p style={{ margin: 0 }}>{SHEPHERD.manifesto.paragraphs[1]}</p>
           </div>
@@ -690,30 +796,30 @@ function VariantSignal() {
       </section>
 
       {/* States */}
-      <section style={{ padding:"72px 32px", borderTop:"1px solid var(--border)" }}>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1.1fr", gap: 40, alignItems:"start" }}>
-          <div>
+      <section style={{ padding: isMobile ? "48px 16px" : "72px 32px", borderTop:"1px solid var(--border)" }}>
+        <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1.1fr", gap: isMobile ? 32 : 40, alignItems:"start" }}>
+          <div style={{ minWidth: 0 }}>
             <div style={{ fontFamily: font.mono, fontSize: 12, color: subColor, letterSpacing:"0.24em", fontWeight: 700 }}>STATES</div>
-            <h2 style={{ margin:"10px 0 0", fontFamily: font.display, fontSize: 48, fontWeight: font.heroWeight, lineHeight: 1.02, letterSpacing:"-0.015em" }}>
+            <h2 style={{ margin:"10px 0 0", fontFamily: font.display, fontSize: isMobile ? 32 : 48, fontWeight: font.heroWeight, lineHeight: 1.02, letterSpacing:"-0.015em" }}>
               Calm until<br/><em style={{ color: accent.voice }}>it can't be.</em>
             </h2>
-            <p style={{ marginTop: 20, fontSize: 16, lineHeight: 1.6, color: "var(--text-2)", maxWidth:"40ch", fontStyle:"italic" }}>
+            <p style={{ marginTop: 20, fontSize: 16, lineHeight: 1.6, color: "var(--text-2)", maxWidth: isMobile ? "100%" : "40ch", fontStyle:"italic" }}>
               Most days: a single orb, breathing green. No storm, no feed. The product disappears until it's needed — then it arrives with your name, your tank, your mother's zip code, and a route that already accounts for the fuel line in Hammond.
             </p>
           </div>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap: 14 }}>
-            <div style={{ border:"1px solid var(--border)", background: "var(--surface)", padding: 24, display:"flex", flexDirection:"column", alignItems:"center", minHeight: 320, justifyContent:"center", gap: 16 }}>
+          <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 14, minWidth: 0 }}>
+            <div style={{ border:"1px solid var(--border)", background: "var(--surface)", padding: 24, display:"flex", flexDirection:"column", alignItems:"center", minHeight: isMobile ? 280 : 320, justifyContent:"center", gap: 16 }}>
               <div style={{ fontFamily: font.mono, fontSize: 9, color: "var(--text-3)", letterSpacing:"0.22em", alignSelf:"stretch", display:"flex", justifyContent:"space-between", fontWeight: 600 }}>
                 <span>STATE · CALM</span><span style={{ color: accent.primary }}>●</span>
               </div>
               <div style={{ width: 80, height: 80, borderRadius: 80, background: `radial-gradient(circle at 35% 30%, #9de0d5, ${accent.primary})`, boxShadow:`0 0 40px ${accent.primary}66`, animation:"cBreath 3s ease-in-out infinite" }}/>
               <div style={{ fontFamily: font.display, fontStyle:"italic", fontSize: 15, color: "var(--text-2)", textAlign:"center", maxWidth:"22ch" }}>No NHC events. Shepherd is listening.</div>
             </div>
-            <div style={{ border:`1px solid ${accent.voice}`, background:`linear-gradient(to bottom, ${accent.voice}14, transparent)`, padding: 24, display:"flex", flexDirection:"column", minHeight: 320, gap: 10 }}>
+            <div style={{ border:`1px solid ${accent.voice}`, background:`linear-gradient(to bottom, ${accent.voice}14, transparent)`, padding: 24, display:"flex", flexDirection:"column", minHeight: isMobile ? 280 : 320, gap: 10, minWidth: 0 }}>
               <div style={{ fontFamily: font.mono, fontSize: 9, color: accent.voice, letterSpacing:"0.22em", display:"flex", justifyContent:"space-between", fontWeight: 600 }}>
                 <span>STATE · ACTIVE · T-36h</span><span style={{ animation:"cBlink 1s infinite" }}>●</span>
               </div>
-              <div style={{ fontFamily: font.display, fontSize: 15, lineHeight: 1.5, color: "var(--text-1)", paddingTop: 4 }}>
+              <div style={{ fontFamily: font.display, fontSize: isMobile ? 13 : 15, lineHeight: 1.5, color: "var(--text-1)", paddingTop: 4 }}>
                 <span style={{ fontFamily: font.mono, fontSize: 9, color: accent.voice, letterSpacing:"0.16em", fontWeight: 600 }}>SHPRD 23:16</span><br/>
                 You leave today. Jackson — Hampton Inn, $89/night. Four nights is $356, leaves $644 buffer. I-10 West, then I-55 North. Leave by 2 PM when contraflow opens. Text your mom you're picking her up at 1.
               </div>
@@ -726,7 +832,7 @@ function VariantSignal() {
       </section>
 
       {/* CTA */}
-      <section style={{ padding:"96px 32px 48px", background:`radial-gradient(circle at 50% 0%, ${accent.voice}14, transparent 50%)`, borderTop:"1px solid var(--border)", textAlign:"center" }}>
+      <section style={{ padding: isMobile ? "64px 16px 40px" : "96px 32px 48px", background:`radial-gradient(circle at 50% 0%, ${accent.voice}14, transparent 50%)`, borderTop:"1px solid var(--border)", textAlign:"center" }}>
         <div style={{ fontFamily: font.mono, fontSize: 12, color: subColor, letterSpacing:"0.24em", fontWeight: 700 }}>ENGAGE</div>
         <h2 style={{ margin:"24px auto 0", fontFamily: font.display, fontSize:"clamp(60px, 8vw, 120px)", fontWeight: font.heroWeight, lineHeight: 1, letterSpacing:"-0.02em", maxWidth:"14ch" }}>
           Meet <em style={{ color: accent.voice }}>Shepherd.</em>
@@ -742,14 +848,14 @@ function VariantSignal() {
         </div>
       </section>
 
-      <footer style={{ borderTop:"1px solid var(--border)", background: "var(--surface)", padding:"16px 32px", display:"flex", justifyContent:"center", fontFamily: font.mono, fontSize: 12, color: subColor, letterSpacing:"0.2em", fontWeight: font.uiWeight, textAlign: "center" }}>
+      <footer style={{ borderTop:"1px solid var(--border)", background: "var(--surface)", padding: isMobile ? "16px 16px" : "16px 32px", display:"flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 8 : 0, justifyContent:"center", alignItems: "center", fontFamily: font.mono, fontSize: 12, color: subColor, letterSpacing:"0.2em", fontWeight: font.uiWeight, textAlign: "center" }}>
         <span>TULANE AI CHALLENGE · MMXXVI</span>
       </footer>
 
       <style>{`@keyframes cBreath { 0%,100% { transform: scale(1); opacity: 1 } 50% { transform: scale(1.05); opacity: 0.85 } }
         @keyframes cOrbPulse { 0%,100% { opacity: 1; transform: scale(1) } 50% { opacity: 0.82; transform: scale(1.06) } }`}</style>
 
-      {editMode && <TweaksPanel tweaks={tweaks} setKey={setKey} font={font} accent={accent} />}
+      {!isMobile && editMode && <TweaksPanel tweaks={tweaks} setKey={setKey} font={font} accent={accent} />}
     </div>
   );
 }
