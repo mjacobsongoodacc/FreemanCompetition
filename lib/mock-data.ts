@@ -49,10 +49,10 @@ export const exposure = {
   surge: "9–13 FT",
   wind: "120 MPH",
   evacZone: "A",
-  prepTimeSeconds: 80040,
+  prepTimeSeconds: 52704,
 } as const;
 
-export const landfallCountdownInitialSeconds = 36 * 3600 + 24 * 60 + 12;
+export const landfallCountdownInitialSeconds = 24 * 3600;
 
 export type IndicatorState = "ok" | "warn" | "alert" | "off";
 

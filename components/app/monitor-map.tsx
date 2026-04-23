@@ -399,15 +399,17 @@ export function MonitorMap({ isMobile }: MonitorMapProps) {
       gestureHandling: isMobile ? "greedy" : "auto",
       backgroundColor: "#0a0d10",
     };
-    if (typeof google === "undefined" || !google.maps) {
-      return { ...base, styles: mapDarkStyles };
-    }
-    const mapTypeId =
+    // String IDs are valid MapOptions values and work when `MapTypeId` is not
+    // on `google.maps` yet (brief window after `useJsApiLoader` reports loaded).
+    const mapTypeId: google.maps.MapTypeId | string =
       mapType === "satellite"
-        ? google.maps.MapTypeId.SATELLITE
+        ? "satellite"
         : mapType === "hybrid"
-          ? google.maps.MapTypeId.HYBRID
-          : google.maps.MapTypeId.ROADMAP;
+          ? "hybrid"
+          : "roadmap";
+    if (typeof google === "undefined" || !google.maps) {
+      return { ...base, mapTypeId, styles: mapDarkStyles };
+    }
     return {
       ...base,
       mapTypeId,
